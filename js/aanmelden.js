@@ -22,6 +22,8 @@ form.addEventListener("submit", async (event) => {
 
   const minecraftName = form.minecraft_name.value.trim();
   const email = form.email.value.trim();
+  const discord = form.discord.value.trim();
+  const age = Number(form.age.value);
   const reason = form.reason.value.trim();
   const honeypot = form.website.value.trim();
 
@@ -40,6 +42,14 @@ form.addEventListener("submit", async (event) => {
     showMessage("Vul een geldig e-mailadres in.", "error");
     return;
   }
+  if (discord.length < 2) {
+    showMessage("Vul je Discord-gebruikersnaam in.", "error");
+    return;
+  }
+  if (!Number.isInteger(age) || age < 5 || age > 120) {
+    showMessage("Vul een geldige leeftijd in.", "error");
+    return;
+  }
   if (reason.length < 3) {
     showMessage("Vertel ons kort waarom je mee wilt doen.", "error");
     return;
@@ -53,6 +63,8 @@ form.addEventListener("submit", async (event) => {
     .insert({
       minecraft_name: minecraftName,
       email: email,
+      discord: discord,
+      age: age,
       reason: reason
     });
 
