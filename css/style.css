@@ -397,7 +397,7 @@ section + section { margin-top: 96px; }
 }
 .request-info { min-width: 220px; flex: 1; }
 .request-name { font-family: var(--font-mono); font-size: 1.05rem; margin-right: 10px; }
-.request-email { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 8px; }
+.request-sub { color: var(--text-muted); font-size: 0.85rem; margin: 4px 0; }
 .request-reason { color: var(--text); font-size: 0.92rem; margin: 0; }
 .request-meta { color: var(--text-faint); font-size: 0.78rem; margin-top: 8px; font-family: var(--font-mono); }
 .request-actions { display: flex; gap: 10px; align-self: center; }
