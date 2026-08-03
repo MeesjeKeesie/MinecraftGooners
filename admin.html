@@ -1,1 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Beheer — MinecraftGooners</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/admin.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">&larr; Site</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ---------- Login-scherm ---------- -->
+    <div class="login-wrap" id="login-view">
+      <form class="form-card" id="login-form" novalidate style="width:100%;">
+        <span class="eyebrow">Beheer</span>
+        <h1 style="font-size:1.6rem;">Inloggen</h1>
+        <p class="lede" style="font-size:0.95rem;">Alleen voor de serverbeheerder.</p>
+
+        <div class="field">
+          <label for="login-email">E-mailadres</label>
+          <input type="email" id="login-email" name="email" required autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="login-password">Wachtwoord</label>
+          <input type="password" id="login-password" name="password" required autocomplete="current-password">
+        </div>
+
+        <button class="btn btn-primary" type="submit" id="login-btn">Inloggen</button>
+        <div class="form-message" id="login-message" role="status" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <!-- ---------- Dashboard (verborgen tot ingelogd) ---------- -->
+    <div id="dashboard-view" style="display:none;">
+      <div class="dash-header">
+        <div>
+          <span class="eyebrow">Beheer</span>
+          <h1 style="margin-bottom:0;">Aanmeldingen beheren</h1>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="logout-btn" type="button">Uitloggen</button>
+      </div>
+
+      <div class="dash-error" id="dash-error" role="alert"></div>
+
+      <div class="tabs" role="tablist">
+        <button class="tab-btn is-active" data-tab="pending" type="button">Openstaand</button>
+        <button class="tab-btn" data-tab="approved" type="button">Goedgekeurd</button>
+        <button class="tab-btn" data-tab="denied" type="button">Afgekeurd</button>
+        <button class="tab-btn" data-tab="players" type="button">Spelers</button>
+      </div>
+
+      <div class="request-list" id="list-container">
+        <!-- wordt gevuld door js/admin.js -->
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners</div>
+  </footer>
+
+</body>
+</html>
