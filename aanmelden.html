@@ -1,1 +1,96 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aanmelden — MinecraftGooners</title>
+  <meta name="description" content="Meld je aan voor de MinecraftGooners whitelist server.">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="module" src="js/aanmelden.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="aanmelden.html" aria-current="page">Aanmelden</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="page-header">
+      <span class="eyebrow">Aanmelden</span>
+      <h1>Vraag toegang aan</h1>
+      <p class="lede">Vul je gegevens in. Zodra je aanvraag is bekeken, krijg je bericht op het e-mailadres hieronder.</p>
+    </div>
+
+    <form class="form-card" id="signup-form" novalidate>
+
+      <!-- Honeypot: onzichtbaar voor mensen, vangt simpele spambots -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="minecraft_name">Minecraft-naam</label>
+        <input
+          type="text"
+          id="minecraft_name"
+          name="minecraft_name"
+          required
+          minlength="3"
+          maxlength="16"
+          pattern="[A-Za-z0-9_]{3,16}"
+          autocomplete="off"
+          placeholder="Bijv. Steve_123">
+        <div class="hint">3–16 tekens: alleen letters, cijfers en underscores.</div>
+      </div>
+
+      <div class="field">
+        <label for="email">E-mailadres</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          maxlength="254"
+          autocomplete="email"
+          placeholder="jij@voorbeeld.nl">
+      </div>
+
+      <div class="field">
+        <label for="reason">Waarom wil je meedoen?</label>
+        <textarea
+          id="reason"
+          name="reason"
+          required
+          minlength="3"
+          maxlength="500"
+          placeholder="Vertel kort hoe je de groep kent en waarom je mee wilt spelen."></textarea>
+      </div>
+
+      <button class="btn btn-primary" type="submit" id="submit-btn">Verstuur aanmelding</button>
+
+      <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
+
+      <p class="hint" style="margin-top:18px;">
+        Je gegevens worden alleen gebruikt om je aanmelding te beoordelen en om contact met je op te nemen.
+      </p>
+    </form>
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners — gemaakt voor het clubje, door het clubje.</div>
+  </footer>
+
+</body>
+</html>
