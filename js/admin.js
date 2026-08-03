@@ -146,8 +146,12 @@ function renderRequests(rows, tab) {
     nameRow.appendChild(badge);
 
     const email = document.createElement("div");
-    email.className = "request-email";
+    email.className = "request-sub";
     email.textContent = req.email;
+
+    const extra = document.createElement("div");
+    extra.className = "request-sub";
+    extra.textContent = "Discord: " + req.discord + " · Leeftijd: " + req.age;
 
     const reason = document.createElement("p");
     reason.className = "request-reason";
@@ -159,6 +163,7 @@ function renderRequests(rows, tab) {
 
     info.appendChild(nameRow);
     info.appendChild(email);
+    info.appendChild(extra);
     info.appendChild(reason);
     info.appendChild(meta);
     card.appendChild(info);
