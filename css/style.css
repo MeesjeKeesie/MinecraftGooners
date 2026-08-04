@@ -402,6 +402,26 @@ section + section { margin-top: 96px; }
 .request-meta { color: var(--text-faint); font-size: 0.78rem; margin-top: 8px; font-family: var(--font-mono); }
 .request-actions { display: flex; gap: 10px; align-self: center; }
 
+.request-note-wrap { flex-basis: 100%; }
+.note-input {
+  width: 100%;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  min-height: 56px;
+  resize: vertical;
+}
+.note-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+.note-input::placeholder { color: var(--text-faint); }
+
 .empty-state {
   text-align: center;
   color: var(--text-faint);
