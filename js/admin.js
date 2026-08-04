@@ -169,6 +169,14 @@ function renderRequests(rows, tab) {
     card.appendChild(info);
 
     if (tab === "pending") {
+      const noteWrap = document.createElement("div");
+      noteWrap.className = "request-note-wrap";
+      const noteInput = document.createElement("textarea");
+      noteInput.className = "note-input";
+      noteInput.placeholder = "Optionele reden bij afkeuren (wordt meegestuurd in de e-mail)";
+      noteWrap.appendChild(noteInput);
+      card.appendChild(noteWrap);
+
       const actions = document.createElement("div");
       actions.className = "request-actions";
 
@@ -182,7 +190,7 @@ function renderRequests(rows, tab) {
       denyBtn.className = "btn btn-danger btn-sm";
       denyBtn.type = "button";
       denyBtn.textContent = "Afkeuren";
-      denyBtn.addEventListener("click", () => denyRequest(req, denyBtn));
+      denyBtn.addEventListener("click", () => denyRequest(req, noteInput.value.trim(), denyBtn));
 
       actions.appendChild(approveBtn);
       actions.appendChild(denyBtn);
@@ -250,10 +258,18 @@ async function approveRequest(req, btn) {
 
   if (insertError) { showDashError(insertError.message); btn.disabled = false; return; }
 
+  // Best-effort: de goedkeuring zelf staat al vast, ook als de mail faalt.
+  const { error: emailError } = await supabaseClient.functions.invoke("notify-applicant", {
+    body: { email: req.email, minecraft_name: req.minecraft_name, decision: "approved" }
+  });
+  if (emailError) {
+    showDashError("Goedgekeurd, maar de e-mail kon niet worden verstuurd: " + emailError.message);
+  }
+
   loadData(currentTab);
 }
 
-async function denyRequest(req, btn) {
+async function denyRequest(req, note, btn) {
   btn.disabled = true;
   clearDashError();
 
@@ -263,6 +279,13 @@ async function denyRequest(req, btn) {
     .eq("id", req.id);
 
   if (error) { showDashError(error.message); btn.disabled = false; return; }
+
+  const { error: emailError } = await supabaseClient.functions.invoke("notify-applicant", {
+    body: { email: req.email, minecraft_name: req.minecraft_name, decision: "denied", note: note || null }
+  });
+  if (emailError) {
+    showDashError("Afgekeurd, maar de e-mail kon niet worden verstuurd: " + emailError.message);
+  }
 
   loadData(currentTab);
 }
