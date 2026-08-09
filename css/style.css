@@ -345,6 +345,26 @@ section + section { margin-top: 96px; }
 /* ---------- 9. Aanmeldpagina ---------- */
 .page-header { margin-bottom: 56px; }
 
+.news-list { display: flex; flex-direction: column; gap: 24px; }
+.news-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 32px;
+}
+.news-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: block;
+  margin-bottom: 12px;
+}
+.news-card h2 { font-size: 1.3rem; margin-bottom: 12px; }
+.news-card p { color: var(--text-muted); margin: 0 0 0.9em; }
+.news-card p:last-child { margin-bottom: 0; }
+
 /* ---------- 10. Admin-dashboard ---------- */
 .login-wrap {
   min-height: 70vh;
