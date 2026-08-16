@@ -18,14 +18,33 @@ let currentTab = "pending";
 
 async function refreshView() {
   const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session) {
-    loginView.style.display = "none";
-    dashboardView.style.display = "block";
-    loadData(currentTab);
-  } else {
+
+  if (!session) {
     loginView.style.display = "flex";
     dashboardView.style.display = "none";
+    return;
   }
+
+  // Ingelogd zijn is niet genoeg — alleen de eigenaar mag hier komen.
+  // Dit is puur voor de weergave; de echte grens ligt in de RLS-policies.
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .single();
+
+  if (profile?.role !== "owner") {
+    loginView.style.display = "flex";
+    dashboardView.style.display = "none";
+    loginMessage.textContent =
+      "Je bent ingelogd, maar deze pagina is alleen voor de eigenaar. Ga naar het beheerpaneel voor de serverbesturing.";
+    loginMessage.className = "form-message is-error";
+    return;
+  }
+
+  loginView.style.display = "none";
+  dashboardView.style.display = "block";
+  loadData(currentTab);
 }
 
 loginForm.addEventListener("submit", async (event) => {
