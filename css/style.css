@@ -70,6 +70,7 @@ body {
   font-family: var(--font-body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
 }
 
 /* subtiele "torch"-gloed op de achtergrond, heel rustig */
@@ -620,15 +621,128 @@ section + section { margin-top: 96px; }
 }
 
 /* ---------- 12. Responsive ---------- */
+
+/* Tablets en kleine laptops: alleen de buitenmarges iets terug */
+@media (max-width: 900px) {
+  .container { padding: 0 32px; }
+  .nav-inner { padding: 22px 32px; }
+}
+
+/* Navigatie: sitenaam + 4 links passen hier niet meer naast elkaar,
+   dus stapelen we ze netjes onder elkaar. */
+@media (max-width: 700px) {
+  .nav-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+  }
+  .nav-links {
+    gap: 22px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav-links a { font-size: 0.9rem; }
+}
+
+/* Telefoons */
 @media (max-width: 640px) {
-  .container { padding: 0 22px; }
-  .nav-inner { padding: 20px 22px; }
-  .rules-grid { grid-template-columns: 1fr; }
-  main { padding: 56px 0 88px; }
-  section + section { margin-top: 64px; }
-  .form-card { padding: 28px; }
-  .request-card { flex-direction: column; }
+  .container { padding: 0 20px; }
+  main { padding: 40px 0 72px; }
+  section + section { margin-top: 56px; }
+
+  /* Achtergrondgloed niet vastzetten — dat schokt bij scrollen op iOS */
+  body { background-attachment: scroll; }
+
+  /* Kaarten krijgen minder binnenruimte, anders blijft er weinig
+     over voor de tekst zelf */
+  .form-card,
+  .connect-card,
+  .news-card,
+  .card { padding: 24px; }
+  .status-card { padding: 22px; }
+  .request-card { padding: 20px; }
+  .rule-card { padding: 22px; }
+  .console-output { padding: 14px; }
+
+  .rules-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 26px; }
+
+  /* Rijen die op desktop naast elkaar staan, onder elkaar zetten */
+  .request-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
   .request-actions { align-self: stretch; }
+  .request-actions .btn { flex: 1; justify-content: center; }
+
+  .status-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+
+  .dash-header { margin-bottom: 32px; }
+  .dash-header > div:last-child { text-align: left !important; }
+
+  .live-status {
+    display: flex;
+    width: 100%;
+    padding: 16px 18px;
+    margin-top: 24px;
+  }
+
+  /* Het serveradres is lang; laat de kopieerknop eronder vallen
+     in plaats van de tekst platdrukken */
+  .connect-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .connect-value { font-size: 0.94rem; word-break: break-all; }
+
+  .hero-actions { gap: 12px; margin-top: 28px; }
+  .hero-actions .btn { flex: 1; justify-content: center; min-width: 140px; }
+
+  .console-input-row { flex-direction: column; }
+  .console-input { min-width: 0; width: 100%; }
+  .console-input-row .btn { width: 100%; justify-content: center; }
+
+  /* Tabbladen niet laten afbreken maar zijwaarts scrollbaar maken */
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-bottom: 28px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { margin-right: 22px; white-space: nowrap; flex-shrink: 0; }
+
+  .role-select { width: 100%; }
+  .news-steps li { padding-left: 34px; }
+
+  /* De vaste minimumbreedte duwt de kaart anders uit beeld */
+  .request-info { min-width: 0; }
+}
+
+/* Kleine telefoons (iPhone SE en vergelijkbaar) */
+@media (max-width: 400px) {
+  .container { padding: 0 16px; }
+  .nav-inner { padding: 14px 16px; }
+  .nav-links { gap: 16px; }
+
+  .form-card,
+  .connect-card,
+  .news-card,
+  .card { padding: 20px; }
+  .status-card,
+  .request-card,
+  .rule-card { padding: 18px; }
+
+  main { padding: 32px 0 60px; }
+  .hero-actions .btn { min-width: 100%; }
 }
 
 /* ---------- 13. Motion & focus ---------- */
