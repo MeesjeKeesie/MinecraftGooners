@@ -461,6 +461,118 @@ section + section { margin-top: 96px; }
 }
 .dash-error.is-visible { display: block; }
 
+/* ---------- 10b. Serverstatus & besturing ---------- */
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  background: var(--text-faint);
+}
+.status-dot.is-online {
+  background: var(--emerald);
+  box-shadow: 0 0 0 4px var(--emerald-soft);
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+.status-dot.is-offline {
+  background: var(--rust);
+  box-shadow: 0 0 0 4px var(--rust-soft);
+}
+.status-dot.is-unknown {
+  background: var(--text-faint);
+  box-shadow: 0 0 0 4px rgba(107, 113, 120, 0.14);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 4px var(--emerald-soft); }
+  50% { box-shadow: 0 0 0 8px rgba(63, 161, 135, 0.05); }
+}
+
+.status-title { font-weight: 600; font-size: 0.98rem; }
+.status-sub { color: var(--text-muted); font-size: 0.85rem; }
+
+/* Compacte variant op de homepage */
+.live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 16px 22px;
+  margin-top: 28px;
+}
+
+/* Grote variant in het beheerpaneel */
+.status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  margin-bottom: 48px;
+}
+.status-main { display: flex; align-items: center; gap: 16px; }
+.status-meta {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
+.control-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+
+.console-input-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.console-input {
+  flex: 1;
+  min-width: 240px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+}
+.console-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+.console-output {
+  background: #0f1216;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 18px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.role-select {
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  color: var(--text);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+.role-select:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
 /* ---------- 11. Utilities ---------- */
 .visually-hidden {
   position: absolute;
