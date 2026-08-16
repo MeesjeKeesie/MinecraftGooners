@@ -362,8 +362,45 @@ section + section { margin-top: 96px; }
   margin-bottom: 12px;
 }
 .news-card h2 { font-size: 1.3rem; margin-bottom: 12px; }
+.news-card h3 { font-size: 1rem; margin-bottom: 12px; color: var(--text); }
 .news-card p { color: var(--text-muted); margin: 0 0 0.9em; }
 .news-card p:last-child { margin-bottom: 0; }
+.news-card a { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; }
+.news-card a:hover { border-bottom-color: var(--gold); }
+
+.news-steps {
+  list-style: none;
+  counter-reset: step;
+  margin: 0;
+  padding: 0;
+}
+.news-steps li {
+  counter-increment: step;
+  position: relative;
+  padding-left: 38px;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+.news-steps li:last-child { margin-bottom: 0; }
+.news-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 /* ---------- 10. Admin-dashboard ---------- */
 .login-wrap {
