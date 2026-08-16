@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account — MinecraftGooners</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/account.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="aanmelden.html">Aanmelden</a>
+        <a href="nieuws.html">Nieuws</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="login-wrap">
+      <div class="form-card" style="width:100%;">
+
+        <span class="eyebrow">Account</span>
+        <h1 style="font-size:1.6rem;" id="form-title">Inloggen</h1>
+        <p class="lede" style="font-size:0.95rem;" id="form-intro">
+          Log in om de serverbesturing te gebruiken.
+        </p>
+
+        <div class="field" id="name-field" style="display:none;">
+          <label for="display-name">Weergavenaam</label>
+          <input type="text" id="display-name" maxlength="40" autocomplete="nickname">
+        </div>
+
+        <div class="field">
+          <label for="email">E-mailadres</label>
+          <input type="email" id="email" required autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="password">Wachtwoord</label>
+          <input type="password" id="password" required autocomplete="current-password">
+          <div class="hint" id="password-hint" style="display:none;">Minimaal 8 tekens.</div>
+        </div>
+
+        <button class="btn btn-primary" type="button" id="submit-btn">Inloggen</button>
+
+        <div class="form-message" id="message" role="status" aria-live="polite"></div>
+
+        <p class="hint" style="margin-top:22px;">
+          <span id="toggle-text">Nog geen account?</span>
+          <a href="#" id="toggle-mode" style="color:var(--gold);">Registreren</a>
+        </p>
+
+        <p class="hint" style="margin-top:10px;">
+          Na registratie heb je nog geen rechten — de eigenaar moet je eerst een
+          rol toewijzen.
+        </p>
+
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners</div>
+  </footer>
+
+</body>
+</html>
