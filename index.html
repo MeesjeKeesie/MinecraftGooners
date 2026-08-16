@@ -16,6 +16,8 @@
   <link rel="stylesheet" href="css/style.css">
 
   <script defer src="js/home.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/status.js"></script>
 </head>
 <body>
 
@@ -26,6 +28,7 @@
         <a href="index.html" aria-current="page">Home</a>
         <a href="aanmelden.html">Aanmelden</a>
         <a href="nieuws.html">Nieuws</a>
+        <a href="beheer.html">Beheer</a>
       </div>
     </div>
   </nav>
@@ -39,10 +42,19 @@
         Een rustige, whitelist-only Minecraft-server voor een klein groepje vrienden.
         Geen randoms, geen chaos — gewoon lekker bouwen met elkaar.
       </p>
+      <div class="live-status">
+        <span class="status-dot is-unknown" id="home-status-dot"></span>
+        <div>
+          <div class="status-title" id="home-status-text">Status ophalen…</div>
+          <div class="status-sub" id="home-status-sub"></div>
+        </div>
+      </div>
+
       <div class="hero-actions">
         <a class="btn btn-primary" href="aanmelden.html">Meld je aan</a>
-        <span class="hero-note">Al aangemeld? Je krijgt bericht via e-mail zodra je aanvraag bekeken is.</span>
+        <a class="btn btn-ghost" href="beheer.html">Serverbesturing</a>
       </div>
+      <p class="hero-note" style="margin-top:18px;">Al aangemeld? Je krijgt bericht via e-mail zodra je aanvraag bekeken is.</p>
     </section>
 
     <section>
