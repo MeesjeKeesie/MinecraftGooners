@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serverbesturing — MinecraftGooners</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/beheer.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="nieuws.html">Nieuws</a>
+        <a href="#" id="logout-link">Uitloggen</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <div id="loading-view">
+      <p class="lede">Laden…</p>
+    </div>
+
+    <div id="panel-view" style="display:none;">
+
+      <div class="dash-header">
+        <div>
+          <span class="eyebrow">Serverbesturing</span>
+          <h1 style="margin-bottom:0;">Beheer</h1>
+        </div>
+        <div style="text-align:right;">
+          <div class="request-sub" id="who-am-i"></div>
+          <span class="badge" id="my-role"></span>
+        </div>
+      </div>
+
+      <div class="dash-error" id="panel-error" role="alert"></div>
+
+      <!-- Statuskaart -->
+      <div class="status-card" id="status-card">
+        <div class="status-main">
+          <span class="status-dot" id="status-dot"></span>
+          <div>
+            <div class="status-title" id="status-title">Status ophalen…</div>
+            <div class="status-sub" id="status-sub"></div>
+          </div>
+        </div>
+        <div class="status-meta" id="status-meta"></div>
+      </div>
+
+      <!-- Bedieningsknoppen -->
+      <section id="controls-section">
+        <h2 style="font-size:1.2rem;">Bediening</h2>
+        <div class="control-row" id="control-row"></div>
+        <div class="form-message" id="action-message" role="status" aria-live="polite"></div>
+        <p class="hint" id="no-rights-note" style="display:none;">
+          Je hebt nog geen rechten om de server te bedienen. Vraag de eigenaar
+          om je een rol toe te wijzen.
+        </p>
+      </section>
+
+      <!-- Console (alleen eigenaar) -->
+      <section id="console-section" style="display:none;">
+        <h2 style="font-size:1.2rem;">Console</h2>
+        <p class="hint" style="margin-top:-8px;">
+          Commando's gaan rechtstreeks naar de Minecraft-server. Zonder
+          schuine streep ervoor, dus <span class="mono">list</span> in plaats
+          van <span class="mono">/list</span>.
+        </p>
+        <div class="console-input-row">
+          <input type="text" id="console-input" class="console-input"
+                 placeholder="bijv. list, whitelist add Steve, say Hallo!"
+                 maxlength="500" autocomplete="off">
+          <button class="btn btn-primary btn-sm" type="button" id="console-send">Versturen</button>
+        </div>
+        <pre class="console-output" id="console-output">Nog geen commando's uitgevoerd.</pre>
+      </section>
+
+      <!-- Geschiedenis -->
+      <section id="history-section">
+        <h2 style="font-size:1.2rem;">Recente opdrachten</h2>
+        <div class="request-list" id="history-list"></div>
+      </section>
+
+      <!-- Gebruikersbeheer (alleen eigenaar) -->
+      <section id="users-section" style="display:none;">
+        <h2 style="font-size:1.2rem;">Gebruikers en rollen</h2>
+        <div class="request-list" id="users-list"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners</div>
+  </footer>
+
+</body>
+</html>
