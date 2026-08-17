@@ -12,13 +12,32 @@ function agentIsAlive(status) {
 }
 
 async function refresh() {
-  const { data, error } = await supabaseClient
-    .from("server_status")
-    .select("running, players_online, max_players, player_names, agent_seen_at")
-    .eq("id", 1)
-    .single();
+  const [statusResult, settingsResult] = await Promise.all([
+    supabaseClient
+      .from("server_status")
+      .select("running, players_online, max_players, player_names, agent_seen_at, last_event")
+      .eq("id", 1)
+      .single(),
+    supabaseClient
+      .from("server_settings")
+      .select("maintenance, maintenance_message")
+      .eq("id", 1)
+      .single(),
+  ]);
 
-  if (error || !data) {
+  const data = statusResult.data;
+  const settings = settingsResult.data;
+
+  // Onderhoud gaat boven alles
+  if (settings?.maintenance) {
+    dot.className = "status-dot is-maintenance";
+    text.textContent = "Server in onderhoud";
+    sub.textContent = settings.maintenance_message
+      || "Sorry, de server is momenteel in onderhoud. Je kunt deze nu niet starten.";
+    return;
+  }
+
+  if (statusResult.error || !data) {
     dot.className = "status-dot is-unknown";
     text.textContent = "Status onbekend";
     sub.textContent = "";
@@ -43,7 +62,7 @@ async function refresh() {
   } else {
     dot.className = "status-dot is-offline";
     text.textContent = "Server is offline";
-    sub.textContent = "Heb je rechten? Dan kun je 'm zelf aanzetten.";
+    sub.textContent = data.last_event || "Heb je rechten? Dan kun je 'm zelf aanzetten.";
   }
 }
 
