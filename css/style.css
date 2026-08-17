@@ -522,6 +522,10 @@ section + section { margin-top: 96px; }
   background: var(--text-faint);
   box-shadow: 0 0 0 4px rgba(107, 113, 120, 0.14);
 }
+.status-dot.is-maintenance {
+  background: var(--lapis);
+  box-shadow: 0 0 0 4px var(--lapis-soft);
+}
 
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 4px var(--emerald-soft); }
@@ -610,6 +614,63 @@ section + section { margin-top: 96px; }
   outline: none;
   border-color: var(--gold);
 }
+
+/* ---------- Onderhoudsmodus ---------- */
+
+.maintenance-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  margin-top: 8px;
+}
+.maintenance-text { max-width: 46em; }
+
+/* Aan/uit-schakelaar */
+.switch { flex-shrink: 0; cursor: pointer; }
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.switch-track {
+  display: block;
+  width: 52px;
+  height: 30px;
+  border-radius: 100px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  position: relative;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.switch input:checked + .switch-track {
+  background: var(--lapis-soft);
+  border-color: var(--lapis);
+}
+.switch input:checked + .switch-track .switch-thumb {
+  transform: translateX(22px);
+  background: var(--lapis);
+}
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+.switch input:disabled + .switch-track { opacity: 0.55; }
 
 /* ---------- 11. Utilities ---------- */
 .visually-hidden {
@@ -725,6 +786,13 @@ section + section { margin-top: 96px; }
 
   /* De vaste minimumbreedte duwt de kaart anders uit beeld */
   .request-info { min-width: 0; }
+
+  .maintenance-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 22px;
+  }
 }
 
 /* Kleine telefoons (iPhone SE en vergelijkbaar) */
