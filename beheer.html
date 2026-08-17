@@ -47,6 +47,9 @@
         <div style="text-align:right;">
           <div class="request-sub" id="who-am-i"></div>
           <span class="badge" id="my-role"></span>
+          <div style="margin-top:10px;">
+            <a class="btn btn-ghost btn-sm" href="admin.html" id="admin-link" style="display:none;">Aanmeldingen &amp; accounts</a>
+          </div>
         </div>
       </div>
 
@@ -92,16 +95,45 @@
         <pre class="console-output" id="console-output">Nog geen commando's uitgevoerd.</pre>
       </section>
 
+      <!-- Onderhoudsmodus (alleen eigenaar) -->
+      <section id="maintenance-section" style="display:none;">
+        <h2 style="font-size:1.2rem;">Onderhoud</h2>
+        <div class="maintenance-card">
+          <div class="maintenance-text">
+            <div class="status-title">Onderhoudsmodus</div>
+            <div class="status-sub">
+              Zet dit aan als je aan de server werkt. Niemand kan dan nog
+              starten, stoppen of console-commando's uitvoeren — jij ook niet.
+              Het automatisch afsluiten wordt ook gepauzeerd.
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="maintenance-toggle">
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </label>
+        </div>
+
+        <div class="field" style="margin-top:20px; max-width:520px;">
+          <label for="maintenance-message">Bericht op de website (optioneel)</label>
+          <input type="text" id="maintenance-message" maxlength="160"
+                 placeholder="Sorry, de server is momenteel in onderhoud.">
+          <div class="hint">Leeg laten geeft de standaardtekst.</div>
+        </div>
+
+        <div class="field" style="max-width:520px;">
+          <label for="idle-minutes">Automatisch stoppen na (minuten leegstand)</label>
+          <input type="number" id="idle-minutes" min="0" max="240" step="1">
+          <div class="hint">0 betekent: nooit automatisch stoppen.</div>
+        </div>
+
+        <button class="btn btn-primary btn-sm" type="button" id="save-settings">Instellingen opslaan</button>
+        <div class="form-message" id="settings-message" role="status" aria-live="polite"></div>
+      </section>
+
       <!-- Geschiedenis -->
       <section id="history-section">
         <h2 style="font-size:1.2rem;">Recente opdrachten</h2>
         <div class="request-list" id="history-list"></div>
-      </section>
-
-      <!-- Gebruikersbeheer (alleen eigenaar) -->
-      <section id="users-section" style="display:none;">
-        <h2 style="font-size:1.2rem;">Gebruikers en rollen</h2>
-        <div class="request-list" id="users-list"></div>
       </section>
 
     </div>
