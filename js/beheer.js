@@ -110,7 +110,46 @@ async function refreshStatus() {
   }
 
   meta.textContent = "Bijgewerkt: " + timeFormatter.format(new Date(data.updated_at));
+  renderBackupStatus(data);
   return data;
+}
+
+/** Toont wanneer de laatste back-up draaide en of die lukte. */
+function renderBackupStatus(data) {
+  const dot = document.getElementById("backup-dot");
+  const title = document.getElementById("backup-title");
+  const sub = document.getElementById("backup-sub");
+  if (!dot) return;
+
+  if (!data.last_backup_at) {
+    dot.className = "status-dot is-unknown";
+    title.textContent = "Nog geen back-up gemaakt";
+    sub.textContent = "Is de nachtelijke taak al ingesteld?";
+    return;
+  }
+
+  const when = new Date(data.last_backup_at);
+  const hoursAgo = (Date.now() - when.getTime()) / 3600000;
+  const stamp = timeFormatter.format(when);
+
+  if (data.last_backup_status !== "ok") {
+    dot.className = "status-dot is-offline";
+    title.textContent = "Laatste back-up mislukt";
+    sub.textContent = `${stamp} — ${data.last_backup_note ?? "geen details"}`;
+    return;
+  }
+
+  // Meer dan anderhalve dag geleden: er is waarschijnlijk iets mis
+  if (hoursAgo > 36) {
+    dot.className = "status-dot is-maintenance";
+    title.textContent = "Back-up is verouderd";
+    sub.textContent = `Laatste geslaagde back-up: ${stamp}`;
+    return;
+  }
+
+  dot.className = "status-dot is-online";
+  title.textContent = "Back-up in orde";
+  sub.textContent = `${stamp} — ${data.last_backup_note ?? ""}`;
 }
 
 /** Knoppen uitschakelen tijdens onderhoud, met uitleg erbij. */
@@ -389,6 +428,7 @@ document.getElementById("logout-link").addEventListener("click", async (event) =
   if (profile.role === "owner") {
     consoleSection.style.display = "block";
     maintenanceSection.style.display = "block";
+    document.getElementById("backup-section").style.display = "block";
     adminLink.style.display = "inline-flex";
   }
 
