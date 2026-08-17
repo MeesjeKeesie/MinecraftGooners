@@ -14,37 +14,57 @@ const dateFormatter = new Intl.DateTimeFormat("nl-NL", { dateStyle: "medium", ti
 
 let currentTab = "pending";
 
+// Elke keer dat we data ophalen krijgt die aanroep een nummer. Alleen het
+// antwoord van de nieuwste aanroep mag renderen. Zonder dit maakten drie
+// gelijktijdige aanroepen (van onAuthStateChange) eerst alledrie de lijst
+// leeg, waarna alledrie hun resultaat toevoegden — vandaar dat je alles
+// drie keer onder elkaar zag staan.
+let loadGeneration = 0;
+
+// Voorkomt dat refreshView meerdere keren tegelijk draait.
+let viewRefreshing = false;
+
+let myUserId = null;
+
 /* ---------------- Auth ---------------- */
 
 async function refreshView() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (viewRefreshing) return;
+  viewRefreshing = true;
 
-  if (!session) {
-    loginView.style.display = "flex";
-    dashboardView.style.display = "none";
-    return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+      loginView.style.display = "flex";
+      dashboardView.style.display = "none";
+      return;
+    }
+
+    // Ingelogd zijn is niet genoeg — alleen de eigenaar mag hier komen.
+    // Dit is puur voor de weergave; de echte grens ligt in de RLS-policies.
+    const { data: profile } = await supabaseClient
+      .from("profiles")
+      .select("role")
+      .eq("id", session.user.id)
+      .single();
+
+    if (profile?.role !== "owner") {
+      loginView.style.display = "flex";
+      dashboardView.style.display = "none";
+      loginMessage.textContent =
+        "Je bent ingelogd, maar deze pagina is alleen voor de eigenaar. Ga naar het beheerpaneel voor de serverbesturing.";
+      loginMessage.className = "form-message is-error";
+      return;
+    }
+
+    myUserId = session.user.id;
+    loginView.style.display = "none";
+    dashboardView.style.display = "block";
+    loadData(currentTab);
+  } finally {
+    viewRefreshing = false;
   }
-
-  // Ingelogd zijn is niet genoeg — alleen de eigenaar mag hier komen.
-  // Dit is puur voor de weergave; de echte grens ligt in de RLS-policies.
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("role")
-    .eq("id", session.user.id)
-    .single();
-
-  if (profile?.role !== "owner") {
-    loginView.style.display = "flex";
-    dashboardView.style.display = "none";
-    loginMessage.textContent =
-      "Je bent ingelogd, maar deze pagina is alleen voor de eigenaar. Ga naar het beheerpaneel voor de serverbesturing.";
-    loginMessage.className = "form-message is-error";
-    return;
-  }
-
-  loginView.style.display = "none";
-  dashboardView.style.display = "block";
-  loadData(currentTab);
 }
 
 loginForm.addEventListener("submit", async (event) => {
@@ -101,8 +121,26 @@ function clearDashError() {
 }
 
 async function loadData(tab) {
+  const generation = ++loadGeneration;
   clearDashError();
-  listContainer.textContent = "";
+
+  // Hulpje: alleen renderen als er ondertussen geen nieuwere aanroep
+  // is gestart. Zo kan een traag antwoord nooit meer over een nieuwer
+  // resultaat heen schrijven of het verdubbelen.
+  const isCurrent = () => generation === loadGeneration;
+
+  if (tab === "accounts") {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("id, display_name, role, created_at")
+      .order("created_at", { ascending: true });
+
+    if (!isCurrent()) return;
+    listContainer.textContent = "";
+    if (error) { showDashError(error.message); return; }
+    renderAccounts(data);
+    return;
+  }
 
   if (tab === "players") {
     const { data, error } = await supabaseClient
@@ -111,6 +149,8 @@ async function loadData(tab) {
       .eq("approved", true)
       .order("minecraft_name", { ascending: true });
 
+    if (!isCurrent()) return;
+    listContainer.textContent = "";
     if (error) { showDashError(error.message); return; }
     renderPlayers(data);
     return;
@@ -122,6 +162,8 @@ async function loadData(tab) {
     .eq("status", tab)
     .order("created_at", { ascending: tab === "pending" });
 
+  if (!isCurrent()) return;
+  listContainer.textContent = "";
   if (error) { showDashError(error.message); return; }
   renderRequests(data, tab);
 }
@@ -216,6 +258,93 @@ function renderRequests(rows, tab) {
       card.appendChild(actions);
     }
 
+    listContainer.appendChild(card);
+  });
+}
+
+function renderAccounts(rows) {
+  if (!rows || rows.length === 0) {
+    listContainer.appendChild(emptyState("Nog geen website-accounts."));
+    return;
+  }
+
+  const roleLabels = {
+    owner: "Eigenaar",
+    starter: "Mag starten",
+    none: "Geen rechten",
+  };
+
+  rows.forEach((account) => {
+    const card = document.createElement("div");
+    card.className = "request-card";
+
+    const info = document.createElement("div");
+    info.className = "request-info";
+
+    const name = document.createElement("span");
+    name.className = "request-name";
+    name.textContent = account.display_name || "(naamloos)";
+    info.appendChild(name);
+
+    const meta = document.createElement("div");
+    meta.className = "request-meta";
+    meta.textContent = "Geregistreerd: " + dateFormatter.format(new Date(account.created_at));
+    info.appendChild(meta);
+    card.appendChild(info);
+
+    const actions = document.createElement("div");
+    actions.className = "request-actions";
+
+    if (account.id === myUserId) {
+      // Je eigen rol kun je niet wijzigen — anders kun je jezelf
+      // per ongeluk buiten je eigen beheerpaneel werken.
+      const self = document.createElement("span");
+      self.className = "badge badge-approved";
+      self.textContent = "Jij — " + (roleLabels[account.role] ?? account.role);
+      actions.appendChild(self);
+    } else {
+      const select = document.createElement("select");
+      select.className = "role-select";
+
+      for (const value of ["none", "starter", "owner"]) {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = roleLabels[value];
+        if (account.role === value) option.selected = true;
+        select.appendChild(option);
+      }
+
+      const previous = account.role;
+      select.addEventListener("change", async () => {
+        if (select.value === "owner" && previous !== "owner") {
+          const confirmed = confirm(
+            `${account.display_name || "Deze gebruiker"} eigenaar maken?\n\n` +
+            "Een eigenaar kan alles: de server stoppen, console-commando's " +
+            "uitvoeren, aanmeldingen beheren en rollen van anderen wijzigen."
+          );
+          if (!confirmed) { select.value = previous; return; }
+        }
+
+        select.disabled = true;
+        const { error } = await supabaseClient
+          .from("profiles")
+          .update({ role: select.value })
+          .eq("id", account.id);
+
+        select.disabled = false;
+        if (error) {
+          showDashError("Rol wijzigen mislukt: " + error.message);
+          select.value = previous;
+        } else {
+          clearDashError();
+          loadData("accounts");
+        }
+      });
+
+      actions.appendChild(select);
+    }
+
+    card.appendChild(actions);
     listContainer.appendChild(card);
   });
 }
