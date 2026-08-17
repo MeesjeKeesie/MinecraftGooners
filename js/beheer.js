@@ -14,13 +14,19 @@ const consoleInput = document.getElementById("console-input");
 const consoleSend = document.getElementById("console-send");
 const consoleOutput = document.getElementById("console-output");
 const historyList = document.getElementById("history-list");
-const usersSection = document.getElementById("users-section");
-const usersList = document.getElementById("users-list");
+const maintenanceSection = document.getElementById("maintenance-section");
+const maintenanceToggle = document.getElementById("maintenance-toggle");
+const maintenanceMessage = document.getElementById("maintenance-message");
+const idleMinutes = document.getElementById("idle-minutes");
+const saveSettingsBtn = document.getElementById("save-settings");
+const settingsMessage = document.getElementById("settings-message");
+const adminLink = document.getElementById("admin-link");
 
 const timeFormatter = new Intl.DateTimeFormat("nl-NL", { dateStyle: "short", timeStyle: "short" });
 
 let profile = null;
 let pollTimer = null;
+let settings = { maintenance: false, maintenance_message: null, idle_shutdown_minutes: 10 };
 
 /* ------------------------- helpers ------------------------- */
 
@@ -47,24 +53,39 @@ function agentIsAlive(status) {
 /* ------------------------- status ------------------------- */
 
 async function refreshStatus() {
-  const { data, error } = await supabaseClient
-    .from("server_status")
-    .select("*")
-    .eq("id", 1)
-    .single();
+  const [statusResult, settingsResult] = await Promise.all([
+    supabaseClient.from("server_status").select("*").eq("id", 1).single(),
+    supabaseClient.from("server_settings").select("*").eq("id", 1).single(),
+  ]);
+
+  const data = statusResult.data;
+  if (settingsResult.data) settings = settingsResult.data;
 
   const dot = document.getElementById("status-dot");
   const title = document.getElementById("status-title");
   const sub = document.getElementById("status-sub");
   const meta = document.getElementById("status-meta");
 
-  if (error || !data) {
+  if (statusResult.error || !data) {
     dot.className = "status-dot is-unknown";
     title.textContent = "Status onbekend";
     sub.textContent = "Kon de status niet ophalen.";
     meta.textContent = "";
-    return null;
+    return data;
   }
+
+  // Onderhoud gaat boven alles — ook als de server technisch draait.
+  if (settings.maintenance) {
+    dot.className = "status-dot is-maintenance";
+    title.textContent = "In onderhoud";
+    sub.textContent = settings.maintenance_message
+      || "De server is momenteel in onderhoud en kan nu niet gestart worden.";
+    meta.textContent = data.running ? "Server draait nog" : "Server staat uit";
+    updateControlsForMaintenance(true);
+    return data;
+  }
+
+  updateControlsForMaintenance(false);
 
   if (!agentIsAlive(data)) {
     dot.className = "status-dot is-unknown";
@@ -85,11 +106,27 @@ async function refreshStatus() {
   } else {
     dot.className = "status-dot is-offline";
     title.textContent = "Server staat uit";
-    sub.textContent = "Niemand kan op dit moment joinen.";
+    sub.textContent = data.last_event || "Niemand kan op dit moment joinen.";
   }
 
   meta.textContent = "Bijgewerkt: " + timeFormatter.format(new Date(data.updated_at));
   return data;
+}
+
+/** Knoppen uitschakelen tijdens onderhoud, met uitleg erbij. */
+function updateControlsForMaintenance(active) {
+  for (const btn of controlRow.querySelectorAll("button")) {
+    btn.disabled = active;
+  }
+  if (consoleInput) consoleInput.disabled = active;
+  if (consoleSend) consoleSend.disabled = active;
+
+  if (active) {
+    showAction("Onderhoudsmodus staat aan — de bediening is uitgeschakeld.", "error");
+  } else if (actionMessage.textContent.startsWith("Onderhoudsmodus")) {
+    actionMessage.textContent = "";
+    actionMessage.className = "form-message";
+  }
 }
 
 /* ------------------------- opdrachten ------------------------- */
@@ -253,81 +290,70 @@ async function refreshHistory() {
   }
 }
 
-/* ------------------------- gebruikersbeheer ------------------------- */
+/* ------------------------- onderhoudsinstellingen ------------------------- */
 
-async function refreshUsers() {
+function fillSettingsForm() {
+  maintenanceToggle.checked = !!settings.maintenance;
+  maintenanceMessage.value = settings.maintenance_message ?? "";
+  idleMinutes.value = settings.idle_shutdown_minutes ?? 10;
+}
+
+async function saveSettings(patch, quiet = false) {
   const { data, error } = await supabaseClient
-    .from("profiles")
-    .select("id, display_name, role, created_at")
-    .order("created_at", { ascending: true });
-
-  usersList.textContent = "";
+    .from("server_settings")
+    .update(patch)
+    .eq("id", 1)
+    .select()
+    .single();
 
   if (error) {
-    showError("Gebruikers ophalen mislukt: " + error.message);
+    settingsMessage.textContent = "Opslaan mislukt: " + error.message;
+    settingsMessage.className = "form-message is-error";
+    fillSettingsForm();
+    return false;
+  }
+
+  settings = data;
+  if (!quiet) {
+    settingsMessage.textContent = "Instellingen opgeslagen.";
+    settingsMessage.className = "form-message is-success";
+  }
+  refreshStatus();
+  return true;
+}
+
+maintenanceToggle?.addEventListener("change", async () => {
+  const turningOn = maintenanceToggle.checked;
+
+  if (turningOn) {
+    const confirmed = confirm(
+      "Onderhoudsmodus aanzetten?\n\n" +
+      "Niemand kan de server dan nog starten of stoppen — jij ook niet. " +
+      "De server zelf blijft draaien zoals hij nu staat."
+    );
+    if (!confirmed) { maintenanceToggle.checked = false; return; }
+  }
+
+  maintenanceToggle.disabled = true;
+  await saveSettings({ maintenance: turningOn });
+  maintenanceToggle.disabled = false;
+});
+
+saveSettingsBtn?.addEventListener("click", async () => {
+  const minutes = Number(idleMinutes.value);
+  if (!Number.isInteger(minutes) || minutes < 0 || minutes > 240) {
+    settingsMessage.textContent = "Vul een geheel aantal minuten in tussen 0 en 240.";
+    settingsMessage.className = "form-message is-error";
     return;
   }
 
-  for (const user of data) {
-    const card = document.createElement("div");
-    card.className = "request-card";
-
-    const info = document.createElement("div");
-    info.className = "request-info";
-
-    const name = document.createElement("span");
-    name.className = "request-name";
-    name.textContent = user.display_name || "(naamloos)";
-    info.appendChild(name);
-
-    const meta = document.createElement("div");
-    meta.className = "request-meta";
-    meta.textContent = "Lid sinds " + timeFormatter.format(new Date(user.created_at));
-    info.appendChild(meta);
-    card.appendChild(info);
-
-    const actions = document.createElement("div");
-    actions.className = "request-actions";
-
-    if (user.id === profile.id) {
-      const self = document.createElement("span");
-      self.className = "badge badge-approved";
-      self.textContent = "Jij — " + roleLabel(user.role);
-      actions.appendChild(self);
-    } else {
-      const select = document.createElement("select");
-      select.className = "role-select";
-      for (const value of ["none", "starter", "owner"]) {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = roleLabel(value);
-        if (user.role === value) option.selected = true;
-        select.appendChild(option);
-      }
-
-      select.addEventListener("change", async () => {
-        select.disabled = true;
-        const { error: updateError } = await supabaseClient
-          .from("profiles")
-          .update({ role: select.value })
-          .eq("id", user.id);
-
-        select.disabled = false;
-        if (updateError) {
-          showError("Rol wijzigen mislukt: " + updateError.message);
-          refreshUsers();
-        } else {
-          clearError();
-        }
-      });
-
-      actions.appendChild(select);
-    }
-
-    card.appendChild(actions);
-    usersList.appendChild(card);
-  }
-}
+  saveSettingsBtn.disabled = true;
+  await saveSettings({
+    maintenance_message: maintenanceMessage.value.trim() || null,
+    idle_shutdown_minutes: minutes,
+  });
+  saveSettingsBtn.disabled = false;
+});
 
 /* ------------------------- uitloggen ------------------------- */
 
@@ -362,8 +388,8 @@ document.getElementById("logout-link").addEventListener("click", async (event) =
 
   if (profile.role === "owner") {
     consoleSection.style.display = "block";
-    usersSection.style.display = "block";
-    refreshUsers();
+    maintenanceSection.style.display = "block";
+    adminLink.style.display = "inline-flex";
   }
 
   if (profile.role === "none") {
@@ -372,7 +398,9 @@ document.getElementById("logout-link").addEventListener("click", async (event) =
     refreshHistory();
   }
 
-  refreshStatus();
+  await refreshStatus();
+  if (profile.role === "owner") fillSettingsForm();
+
   pollTimer = setInterval(refreshStatus, 10000);
 })();
 
