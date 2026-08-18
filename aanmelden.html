@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nieuws — MinecraftGooners</title>
-  <meta name="description" content="Updates en aankondigingen over de MinecraftGooners server.">
+  <title>Aanmelden — MinecraftGooners</title>
+  <meta name="description" content="Meld je aan voor de MinecraftGooners whitelist server.">
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="alternate icon" href="favicon.ico">
@@ -14,6 +14,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/aanmelden.js"></script>
 </head>
 <body>
 
@@ -22,8 +25,8 @@
       <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
       <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="aanmelden.html">Aanmelden</a>
-        <a href="nieuws.html" aria-current="page">Nieuws</a>
+        <a href="aanmelden.html" aria-current="page">Aanmelden</a>
+        <a href="nieuws.html">Nieuws</a>
         <a href="app.html">Windows-app</a>
         <a href="beheer.html">Beheer</a>
       </div>
@@ -32,109 +35,91 @@
 
   <main class="container">
     <div class="page-header">
-      <span class="eyebrow">Updates</span>
-      <h1>Nieuws</h1>
-      <p class="lede">Aankondigingen, wijzigingen en updates over de server verschijnen hier.</p>
+      <span class="eyebrow">Aanmelden</span>
+      <h1>Vraag toegang aan</h1>
+      <p class="lede">Vul je gegevens in. Zodra je aanvraag is bekeken, krijg je bericht op het e-mailadres hieronder.</p>
     </div>
 
-    <div class="news-list">
+    <form class="form-card" id="signup-form" novalidate>
 
-      <!--
-        Nieuw bericht plaatsen? Kopieer een heel <article class="news-card">-blok,
-        plak het bovenaan deze lijst (nieuwste bovenaan) en pas datum/titel/tekst aan.
+      <!-- Honeypot: onzichtbaar voor mensen, vangt simpele spambots -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
 
-        Beschikbare onderdelen binnen een artikel:
-          <ol class="news-steps">   genummerde stappen met gouden bolletjes
-          <ul class="news-bullets"> opsomming met gouden puntjes
-          <p class="news-meta">     kleine grijze bijregel, bijv. onder een knop
-          <div class="news-note">   uitgelicht kader met gouden rand
-      -->
+      <div class="field">
+        <label for="minecraft_name">Minecraft-naam</label>
+        <input
+          type="text"
+          id="minecraft_name"
+          name="minecraft_name"
+          required
+          minlength="3"
+          maxlength="16"
+          pattern="[A-Za-z0-9_]{3,16}"
+          autocomplete="off"
+          placeholder="Bijv. Steve_123">
+        <div class="hint">3–16 tekens: alleen letters, cijfers en underscores.</div>
+      </div>
 
-      <article class="news-card">
-        <span class="news-date">30 augustus 2026</span>
-        <h2>Er is nu een Windows-app</h2>
-        <p>Vanaf nu hoef je de website niet meer te openen om te kijken of de
-          server draait. De app zet een icoontje in je taakbalk dat groen wordt
-          zodra hij aan staat, en je start hem met twee klikken.</p>
+      <div class="field">
+        <label for="email">E-mailadres</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          required
+          maxlength="254"
+          autocomplete="email"
+          placeholder="jij@voorbeeld.nl">
+      </div>
 
-        <h3 style="margin-top:26px;">Wat kun je ermee</h3>
-        <ul class="news-bullets">
-          <li>Zien of de server draait en wie er online is</li>
-          <li>De server starten met een rechtsklik, zonder de app te openen</li>
-          <li>Een melding zodra er iemand de server op komt</li>
-          <li>Zien hoe zwaar de laptop het heeft</li>
-        </ul>
+      <div class="field">
+        <label for="discord">Discord-gebruikersnaam</label>
+        <input
+          type="text"
+          id="discord"
+          name="discord"
+          required
+          minlength="2"
+          maxlength="32"
+          autocomplete="off"
+          placeholder="Bijv. meesjekeesie">
+      </div>
 
-        <h3 style="margin-top:26px;">Zo installeer je hem</h3>
-        <ol class="news-steps">
-          <li><strong>Download het bestand</strong> via de knop hieronder, en klik
-            daarna op &ldquo;Download voor Windows&rdquo;.</li>
-          <li><strong>Open het gedownloade bestand.</strong> Meestal staat het in
-            je map Downloads.</li>
-          <li><strong>Klik de waarschuwing weg.</strong> Windows toont een blauw
-            scherm. Klik op <em>Meer informatie</em> en dan op
-            <em>Toch uitvoeren</em>. Verderop staat waarom.</li>
-          <li><strong>Klik door de installatie heen.</strong> Je kunt kiezen of je
-            een snelkoppeling op je bureaublad wilt, en of de app mee mag starten
-            met Windows.</li>
-          <li><strong>Log in</strong> met hetzelfde e-mailadres en wachtwoord als
-            op deze website.</li>
-          <li><strong>Vraag om rechten.</strong> Een nieuw account kan alleen
-            meekijken. Stuur me een berichtje, dan zet ik je op
-            &ldquo;Mag starten&rdquo;.</li>
-        </ol>
+      <div class="field">
+        <label for="age">Leeftijd</label>
+        <input
+          type="number"
+          id="age"
+          name="age"
+          required
+          min="5"
+          max="120"
+          inputmode="numeric"
+          placeholder="Bijv. 17">
+      </div>
 
-        <p style="margin-top:24px;">
-          <button class="btn btn-primary btn-sm" type="button"
-                  onclick="window.location.href='app.html';">
-            Naar de downloadpagina
-          </button>
-        </p>
-        <p class="news-meta">Windows 10 of nieuwer &middot; ongeveer 50 MB</p>
+      <div class="field">
+        <label for="reason">Waarom wil je meedoen?</label>
+        <textarea
+          id="reason"
+          name="reason"
+          required
+          minlength="3"
+          maxlength="500"
+          placeholder="Vertel kort hoe je de groep kent en waarom je mee wilt spelen."></textarea>
+      </div>
 
-        <div class="news-note">
-          <strong>Waarom waarschuwt Windows?</strong>
-          <p>Omdat de app geen betaald certificaat heeft — dat kost honderden
-            euro's per jaar en dat doen we niet voor een vriendenserver. Het is
-            gewoon de app die op deze site staat. Twijfel je? Download hem dan
-            alleen via de knop hierboven en nergens anders.</p>
-        </div>
-      </article>
+      <button class="btn btn-primary" type="submit" id="submit-btn">Verstuur aanmelding</button>
 
-      <article class="news-card">
-        <span class="news-date">16 augustus 2026</span>
-        <h2>Zet de server voortaan zelf aan</h2>
-        <p>De server draait vanaf nu op een eigen machine die dag en nacht aan
-          staat. Handig gevolg: je hoeft niet meer te wachten tot iemand anders
-          hem opstart — met een account op deze website kun je dat zelf doen.</p>
-        <p>Op de homepage zie je bovendien meteen of de server op dit moment
-          online is en wie er spelen. Daar hoef je niet eens voor in te loggen.</p>
+      <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
 
-        <h3 style="margin-top:26px;">Zo werkt het</h3>
-        <ol class="news-steps">
-          <li><a href="account.html">Maak een account aan</a> op deze website.</li>
-          <li>Laat het me even weten. Nieuwe accounts starten zonder rechten —
-            ik moet je handmatig toegang geven. Dat is bewust zo, anders zou
-            iedereen die de site vindt aan de server kunnen zitten.</li>
-          <li>Zodra je rechten hebt, verschijnt de startknop vanzelf in je
-            <a href="beheer.html">beheerpaneel</a>.</li>
-        </ol>
-
-        <p style="margin-top:22px;">Nog niet op de whitelist? Meld je dan eerst
-          <a href="aanmelden.html">aan als speler</a> — dat is iets anders dan
-          dit account.</p>
-      </article>
-
-      <article class="news-card">
-        <span class="news-date">9 augustus 2026</span>
-        <h2>De nieuwspagina is live</h2>
-        <p>Dit wordt het nieuwsartikel voor de server. Zodra er updates zijn — nieuwe
-          features, wijzigingen aan de regels, gepland onderhoud, of iets anders de
-          moeite waard — worden die hier aangekondigd.</p>
-        <p>Houd deze pagina dus in de gaten voor het laatste nieuws.</p>
-      </article>
-
-    </div>
+      <p class="hint" style="margin-top:18px;">
+        Je gegevens worden alleen gebruikt om je aanmelding te beoordelen en om contact met je op te nemen.
+      </p>
+    </form>
   </main>
 
   <footer>
