@@ -1,18 +1,205 @@
-<section>
-  <span class="eyebrow">Windows-app</span>
-  <h1>MinecraftGooners voor Windows</h1>
-  <p class="lede">
-    Start en stop de server vanaf je bureaublad, zie wie er online is,
-    en krijg een melding als er iemand joint.
-  </p>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Windows-app — MinecraftGooners</title>
+  <meta name="description" content="Beheer de MinecraftGooners-server vanaf je bureaublad. Start, stop en zie wie er online is, zonder de website te openen.">
 
-  <a class="btn btn-primary"
-     href="https://github.com/MeesjeKeesie/REPO/releases/latest">
-    Download voor Windows
-  </a>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-  <p class="hint">
-    Versie 1.0.0 · Windows 10 of nieuwer · Je logt in met hetzelfde
-    account als op deze website.
-  </p>
-</section>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="module" src="js/app-download.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="nieuws.html">Nieuws</a>
+        <a href="app.html">Windows-app</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ---------- Kop ---------- -->
+    <span class="eyebrow">Windows-app</span>
+    <h1>De server beheren vanaf je bureaublad</h1>
+    <p class="lede">
+      Dezelfde bediening als op deze site, maar dan als programma dat in je
+      taakbalk blijft staan. Je ziet in één oogopslag of de server draait,
+      en je start hem met twee klikken.
+    </p>
+
+    <!-- ---------- Downloadknop ---------- -->
+    <div style="margin:32px 0 12px;">
+      <a class="btn btn-primary" id="download-btn"
+         href="https://github.com/MeesjeKeesie/MinecraftGooners/releases/latest">
+        Download voor Windows
+      </a>
+    </div>
+
+    <p class="hint" id="download-meta">
+      Windows 10 of nieuwer &middot; ongeveer 50 MB &middot; je logt in met
+      hetzelfde account als op deze website
+    </p>
+
+    <!-- ---------- Waarschuwing van Windows ---------- -->
+    <div class="status-card" style="margin-top:28px;">
+      <div class="status-main">
+        <span class="status-dot is-maintenance"></span>
+        <div>
+          <div class="status-title">Windows waarschuwt bij het openen</div>
+          <div class="status-sub">
+            Dat hoort zo. De app heeft geen betaald certificaat — dat kost
+            honderden euro's per jaar en dat doen we niet voor een
+            vriendenserver. Je krijgt een blauw scherm met
+            &ldquo;Windows heeft uw pc beveiligd&rdquo;. Klik op
+            <strong>Meer informatie</strong> en daarna op
+            <strong>Toch uitvoeren</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Wat kun je ermee ---------- -->
+    <section>
+      <h2 style="font-size:1.2rem;">Wat kun je ermee</h2>
+
+      <div class="request-list">
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Zien of de server draait</span>
+            <p class="request-reason">
+              Het icoontje in je taakbalk wordt groen als de server aan staat
+              en rood als hij uit staat. Zweef eroverheen voor het aantal
+              spelers dat online is.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Starten en stoppen</span>
+            <p class="request-reason">
+              Rechtsklik op het icoontje om de server te starten zonder de app
+              zelfs maar te openen. Wat je precies mag hangt af van je rol,
+              net als op de website.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Melding als er iemand joint</span>
+            <p class="request-reason">
+              Je krijgt een berichtje rechtsonder in beeld zodra er iemand de
+              server op komt. Uit te zetten bij Instellingen.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">CPU en geheugen in de gaten houden</span>
+            <p class="request-reason">
+              Zie hoe zwaar de laptop het heeft, zodat je weet wanneer het tijd
+              is om iemand te vragen even af te sluiten.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Console en aanmeldingen</span>
+            <span class="badge badge-approved">Alleen eigenaar</span>
+            <p class="request-reason">
+              Commando's uitvoeren, aanmeldingen goedkeuren of afkeuren, en
+              rollen toewijzen. Alles wat nu in het beheerpaneel zit.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ---------- Aan de slag ---------- -->
+    <section>
+      <h2 style="font-size:1.2rem;">Aan de slag</h2>
+
+      <div class="request-list">
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">1. Download en installeer</span>
+            <p class="request-reason">
+              Klik op de knop hierboven, open het gedownloade bestand en klik
+              door de installatie heen. Je kunt kiezen of je een snelkoppeling
+              op je bureaublad wilt en of de app automatisch mee mag starten
+              met Windows.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">2. Log in</span>
+            <p class="request-reason">
+              Gebruik hetzelfde e-mailadres en wachtwoord als hier op de site.
+              Heb je nog geen account, maak er dan eerst een aan via
+              <a href="aanmelden.html">aanmelden</a>.
+            </p>
+          </div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">3. Vraag om rechten</span>
+            <p class="request-reason">
+              Een nieuw account heeft nog geen rechten en kan alleen meekijken.
+              Vraag de eigenaar om je de rol <em>Mag starten</em> te geven,
+              dan kun je de server zelf aanzetten.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ---------- Kleine lettertjes ---------- -->
+    <section>
+      <h2 style="font-size:1.2rem;">Goed om te weten</h2>
+      <p class="hint">
+        Het kruisje sluit de app niet af maar zet hem weg in je taakbalk, zodat
+        hij meldingen kan blijven geven. Echt afsluiten doe je via rechtsklik
+        op het icoontje.
+      </p>
+      <p class="hint">
+        De app controleert niet zelf op updates. Kom hier af en toe kijken of
+        er een nieuwere versie staat.
+      </p>
+      <p class="hint">
+        Alleen voor Windows. Op een Mac of telefoon gebruik je gewoon
+        <a href="beheer.html">het beheerpaneel</a> op deze site.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners</div>
+  </footer>
+
+</body>
+</html>
