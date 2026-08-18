@@ -366,8 +366,14 @@ section + section { margin-top: 96px; }
 .news-card h3 { font-size: 1rem; margin-bottom: 12px; color: var(--text); }
 .news-card p { color: var(--text-muted); margin: 0 0 0.9em; }
 .news-card p:last-child { margin-bottom: 0; }
-.news-card a { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; }
-.news-card a:hover { border-bottom-color: var(--gold); }
+/* Links binnen een artikel krijgen de gouden accentkleur — behalve knoppen,
+   die hun eigen kleur houden. Zonder :not(.btn) wint deze regel qua
+   specificiteit van .btn-primary en wordt de knoptekst goud op goud. */
+.news-card a:not(.btn) { color: var(--gold); text-decoration: none; border-bottom: 1px solid transparent; }
+.news-card a:not(.btn):hover { border-bottom-color: var(--gold); }
+.news-card a.btn { border-bottom: none; }
+.news-card a.btn-primary { color: #1a1305; }
+.news-card a.btn-ghost { color: var(--text); }
 
 .news-steps {
   list-style: none;
