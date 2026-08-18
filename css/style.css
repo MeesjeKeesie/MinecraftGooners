@@ -402,6 +402,60 @@ section + section { margin-top: 96px; }
   align-items: center;
   justify-content: center;
 }
+.news-steps li strong { color: var(--text); font-weight: 600; }
+
+/* Opsomming zonder nummers */
+.news-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.news-bullets li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 10px;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+.news-bullets li:last-child { margin-bottom: 0; }
+.news-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0.65em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+/* Kleine bijregel onder een knop, bijv. systeemeisen */
+.news-meta {
+  font-size: 0.82rem;
+  color: var(--text-faint);
+  margin: 10px 0 0;
+}
+
+/* Uitgelicht blokje binnen een artikel */
+.news-note {
+  border: 1px solid var(--gold);
+  background: var(--gold-soft);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-top: 26px;
+}
+.news-note strong {
+  display: block;
+  color: var(--gold);
+  font-size: 0.94rem;
+  margin-bottom: 6px;
+}
+.news-note p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
 
 /* ---------- 10. Admin-dashboard ---------- */
 .login-wrap {
