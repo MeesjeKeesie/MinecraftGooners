@@ -492,6 +492,16 @@ section + section { margin-top: 96px; }
 .tab-btn:hover { color: var(--text); }
 .tab-btn.is-active { color: var(--gold); border-bottom-color: var(--gold); }
 
+/* Tabbladpanelen: alleen de actieve is zichtbaar */
+.tab-panel { display: none; }
+.tab-panel.is-active { display: block; }
+/* Panelen zijn siblings, dus de algemene sectie-afstand zou het tweede
+   en volgende panel omlaag duwen zodra je erop klikt. */
+.tab-panel + .tab-panel { margin-top: 0; }
+.tab-panel .card h2 { margin-top: 0; }
+.tab-panel .card h3 { margin-bottom: 14px; }
+.tab-panel .card p { color: var(--text-muted); }
+
 .dash-header {
   display: flex;
   align-items: center;
