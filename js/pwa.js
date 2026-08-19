@@ -45,23 +45,26 @@ window.addEventListener("beforeinstallprompt", (event) => {
 });
 
 function toonInstallKnop() {
-  const knop = document.getElementById("install-app");
-  if (!knop) return;
+  // Op de app-pagina staan er meerdere (per tabblad), op de homepage één.
+  const knoppen = document.querySelectorAll("#install-app, .install-app");
+  if (knoppen.length === 0) return;
 
-  knop.style.display = "inline-flex";
-  knop.addEventListener("click", async () => {
-    if (!installPrompt) return;
-    knop.disabled = true;
-    installPrompt.prompt();
-    await installPrompt.userChoice;
-    installPrompt = null;
-    knop.style.display = "none";
+  knoppen.forEach((knop) => {
+    knop.style.display = "inline-flex";
+    knop.addEventListener("click", async () => {
+      if (!installPrompt) return;
+      knoppen.forEach((k) => { k.disabled = true; });
+      installPrompt.prompt();
+      await installPrompt.userChoice;
+      installPrompt = null;
+      knoppen.forEach((k) => { k.style.display = "none"; });
+    });
   });
 }
 
-// Al geïnstalleerd? Dan de knop verbergen.
+// Al geïnstalleerd? Dan de knoppen verbergen.
 window.addEventListener("appinstalled", () => {
   installPrompt = null;
-  const knop = document.getElementById("install-app");
-  if (knop) knop.style.display = "none";
+  document.querySelectorAll("#install-app, .install-app")
+    .forEach((knop) => { knop.style.display = "none"; });
 });
