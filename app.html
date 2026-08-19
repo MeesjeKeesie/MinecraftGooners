@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Windows-app — MinecraftGooners</title>
-  <meta name="description" content="Beheer de MinecraftGooners-server vanaf je bureaublad. Start, stop en zie wie er online is, zonder de website te openen.">
+  <title>App — MinecraftGooners</title>
+  <meta name="description" content="Beheer de MinecraftGooners-server vanaf je bureaublad of telefoon. Start, stop en zie wie er online is, zonder de website te openen.">
 
   <meta name="theme-color" content="#14171b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Gooners">
   <link rel="manifest" href="manifest.json">
-  
+
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="alternate icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -23,6 +23,7 @@
 
   <script type="module" src="js/app-download.js"></script>
   <script defer src="js/pwa.js"></script>
+  <script defer src="js/app-page.js"></script>
 </head>
 <body>
 
@@ -33,7 +34,7 @@
         <a href="index.html">Home</a>
         <a href="aanmelden.html">Aanmelden</a>
         <a href="nieuws.html">Nieuws</a>
-        <a href="app.html" aria-current="page">Windows-app</a>
+        <a href="app.html" aria-current="page">App Download</a>
         <a href="beheer.html">Beheer</a>
       </div>
     </div>
@@ -42,166 +43,305 @@
   <main class="container">
 
     <!-- ---------- Kop ---------- -->
-    <span class="eyebrow">Windows-app</span>
-    <h1>De server beheren vanaf je bureaublad</h1>
-    <p class="lede">
-      Dezelfde bediening als op deze site, maar dan als programma dat in je
-      taakbalk blijft staan. Je ziet in één oogopslag of de server draait,
-      en je start hem met twee klikken.
-    </p>
-
-    <!-- ---------- Downloadknop ---------- -->
-    <div style="margin:32px 0 12px;">
-      <a class="btn btn-primary" id="download-btn"
-         href="https://github.com/MeesjeKeesie/MinecraftGooners/releases/latest">
-        Download voor Windows
-      </a>
+    <div class="page-header">
+      <span class="eyebrow">App</span>
+      <h1>De server beheren zonder de site te openen</h1>
+      <p class="lede">
+        Dezelfde bediening als op deze site, maar dan als app op je apparaat.
+        Je ziet in één oogopslag of de server draait, en je start hem met twee
+        klikken. Kies hieronder je apparaat.
+      </p>
     </div>
 
-    <p class="hint" id="download-meta">
-      Windows 10 of nieuwer &middot; ongeveer 50 MB &middot; je logt in met
-      hetzelfde account als op deze website
-    </p>
-
-    <!-- ---------- Waarschuwing van Windows ---------- -->
-    <div class="status-card" style="margin-top:28px;">
-      <div class="status-main">
-        <span class="status-dot is-maintenance"></span>
-        <div>
-          <div class="status-title">Windows waarschuwt bij het openen</div>
-          <div class="status-sub">
-            Dat hoort zo. De app heeft geen betaald certificaat — dat kost
-            honderden euro's per jaar en dat doen we niet voor een
-            vriendenserver. Je krijgt een blauw scherm met
-            &ldquo;Windows heeft uw pc beveiligd&rdquo;. Klik op
-            <strong>Meer informatie</strong> en daarna op
-            <strong>Toch uitvoeren</strong>.
-          </div>
-        </div>
-      </div>
+    <!-- ---------- Tabbladen ---------- -->
+    <div class="tabs" role="tablist">
+      <button class="tab-btn is-active" data-panel="windows" type="button" role="tab">Windows</button>
+      <button class="tab-btn" data-panel="android" type="button" role="tab">Android</button>
+      <button class="tab-btn" data-panel="mac" type="button" role="tab">Mac</button>
+      <button class="tab-btn" data-panel="iphone" type="button" role="tab">iPhone</button>
     </div>
 
-    <!-- ---------- Wat kun je ermee ---------- -->
-    <section>
-      <h2 style="font-size:1.2rem;">Wat kun je ermee</h2>
+    <!-- ============================================================
+         WINDOWS
+         ============================================================ -->
+    <section class="tab-panel is-active" id="panel-windows" role="tabpanel">
 
-      <div class="request-list">
+      <p class="lede" style="font-size:0.98rem;">
+        Een echt programma dat in je taakbalk blijft staan en meldingen kan
+        geven, ook als je de app hebt weggeklikt.
+      </p>
 
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">Zien of de server draait</span>
-            <p class="request-reason">
-              Het icoontje in je taakbalk wordt groen als de server aan staat
-              en rood als hij uit staat. Zweef eroverheen voor het aantal
-              spelers dat online is.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">Starten en stoppen</span>
-            <p class="request-reason">
-              Rechtsklik op het icoontje om de server te starten zonder de app
-              zelfs maar te openen. Wat je precies mag hangt af van je rol,
-              net als op de website.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">Melding als er iemand joint</span>
-            <p class="request-reason">
-              Je krijgt een berichtje rechtsonder in beeld zodra er iemand de
-              server op komt. Uit te zetten bij Instellingen.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">CPU en geheugen in de gaten houden</span>
-            <p class="request-reason">
-              Zie hoe zwaar de laptop het heeft, zodat je weet wanneer het tijd
-              is om iemand te vragen even af te sluiten.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">Console en aanmeldingen</span>
-            <span class="badge badge-approved">Alleen eigenaar</span>
-            <p class="request-reason">
-              Commando's uitvoeren, aanmeldingen goedkeuren of afkeuren, en
-              rollen toewijzen. Alles wat nu in het beheerpaneel zit.
-            </p>
-          </div>
-        </div>
-
+      <div style="margin:28px 0 12px;">
+        <a class="btn btn-primary" id="download-btn"
+           href="https://github.com/MeesjeKeesie/MinecraftGooners/releases/latest">
+          Download voor Windows
+        </a>
       </div>
+
+      <p class="hint" id="download-meta">
+        Windows 10 of nieuwer &middot; ongeveer 50 MB &middot; je logt in met
+        hetzelfde account als op deze website
+      </p>
+
+      <!-- Waarschuwing van Windows -->
+      <div class="status-card" style="margin-top:28px;">
+        <div class="status-main">
+          <span class="status-dot is-maintenance"></span>
+          <div>
+            <div class="status-title">Windows waarschuwt bij het openen</div>
+            <div class="status-sub">
+              Dat hoort zo. De app heeft geen betaald certificaat — dat kost
+              honderden euro's per jaar en dat doen we niet voor een
+              vriendenserver. Je krijgt een blauw scherm met
+              &ldquo;Windows heeft uw pc beveiligd&rdquo;. Klik op
+              <strong>Meer informatie</strong> en daarna op
+              <strong>Toch uitvoeren</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wat kun je ermee -->
+      <section>
+        <h2 style="font-size:1.2rem;">Wat kun je ermee</h2>
+
+        <div class="request-list">
+
+          <div class="request-card">
+            <div class="request-info">
+              <span class="request-name">Zien of de server draait</span>
+              <p class="request-reason">
+                Het icoontje in je taakbalk wordt groen als de server aan staat
+                en rood als hij uit staat. Zweef eroverheen voor het aantal
+                spelers dat online is.
+              </p>
+            </div>
+          </div>
+
+          <div class="request-card">
+            <div class="request-info">
+              <span class="request-name">Starten en stoppen</span>
+              <p class="request-reason">
+                Rechtsklik op het icoontje om de server te starten zonder de app
+                zelfs maar te openen. Wat je precies mag hangt af van je rol,
+                net als op de website.
+              </p>
+            </div>
+          </div>
+
+          <div class="request-card">
+            <div class="request-info">
+              <span class="request-name">Melding als er iemand joint</span>
+              <p class="request-reason">
+                Je krijgt een berichtje rechtsonder in beeld zodra er iemand de
+                server op komt. Uit te zetten bij Instellingen.
+              </p>
+            </div>
+          </div>
+
+          <div class="request-card">
+            <div class="request-info">
+              <span class="request-name">CPU en geheugen in de gaten houden</span>
+              <p class="request-reason">
+                Zie hoe zwaar de laptop het heeft, zodat je weet wanneer het tijd
+                is om iemand te vragen even af te sluiten.
+              </p>
+            </div>
+          </div>
+
+          <div class="request-card">
+            <div class="request-info">
+              <span class="request-name">Console en aanmeldingen</span>
+              <span class="badge badge-approved">Alleen eigenaar</span>
+              <p class="request-reason">
+                Commando's uitvoeren, aanmeldingen goedkeuren of afkeuren, en
+                rollen toewijzen. Alles wat nu in het beheerpaneel zit.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Aan de slag -->
+      <section>
+        <h2 style="font-size:1.2rem;">Aan de slag</h2>
+        <ol class="news-steps">
+          <li><strong>Download en installeer.</strong> Klik op de knop hierboven,
+            open het gedownloade bestand en klik door de installatie heen. Je kunt
+            kiezen of je een snelkoppeling op je bureaublad wilt en of de app
+            automatisch mee mag starten met Windows.</li>
+          <li><strong>Log in.</strong> Gebruik hetzelfde e-mailadres en wachtwoord
+            als hier op de site. Heb je nog geen account, maak er dan eerst een aan
+            via <a href="account.html">account aanmaken</a>.</li>
+          <li><strong>Vraag om rechten.</strong> Een nieuw account heeft nog geen
+            rechten en kan alleen meekijken. Vraag de eigenaar om je de rol
+            <em>Mag starten</em> te geven, dan kun je de server zelf aanzetten.</li>
+        </ol>
+      </section>
+
+      <!-- Kleine lettertjes -->
+      <section>
+        <h2 style="font-size:1.2rem;">Goed om te weten</h2>
+        <p class="hint">
+          Het kruisje sluit de app niet af maar zet hem weg in je taakbalk, zodat
+          hij meldingen kan blijven geven. Echt afsluiten doe je via rechtsklik
+          op het icoontje.
+        </p>
+        <p class="hint">
+          De app controleert niet zelf op updates. Kom hier af en toe kijken of
+          er een nieuwere versie staat.
+        </p>
+      </section>
+
     </section>
 
-    <!-- ---------- Aan de slag ---------- -->
-    <section>
-      <h2 style="font-size:1.2rem;">Aan de slag</h2>
+    <!-- ============================================================
+         ANDROID
+         ============================================================ -->
+    <section class="tab-panel" id="panel-android" role="tabpanel">
 
-      <div class="request-list">
+      <p class="lede" style="font-size:0.98rem;">
+        Een app die je vanaf je beginscherm opent, schermvullend en zonder
+        adresbalk. Houd het icoontje ingedrukt voor een snelkoppeling
+        rechtstreeks naar de serverbesturing.
+      </p>
 
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">1. Download en installeer</span>
-            <p class="request-reason">
-              Klik op de knop hierboven, open het gedownloade bestand en klik
-              door de installatie heen. Je kunt kiezen of je een snelkoppeling
-              op je bureaublad wilt en of de app automatisch mee mag starten
-              met Windows.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">2. Log in</span>
-            <p class="request-reason">
-              Gebruik hetzelfde e-mailadres en wachtwoord als hier op de site.
-              Heb je nog geen account, maak er dan eerst een aan via
-              <a href="aanmelden.html">aanmelden</a>.
-            </p>
-          </div>
-        </div>
-
-        <div class="request-card">
-          <div class="request-info">
-            <span class="request-name">3. Vraag om rechten</span>
-            <p class="request-reason">
-              Een nieuw account heeft nog geen rechten en kan alleen meekijken.
-              Vraag de eigenaar om je de rol <em>Mag starten</em> te geven,
-              dan kun je de server zelf aanzetten.
-            </p>
-          </div>
-        </div>
-
+      <div style="margin:28px 0 12px;">
+        <!-- TODO: vervang dit pad zodra de APK gebouwd en geüpload is -->
+        <a class="btn btn-primary" id="download-apk"
+           href="https://github.com/MeesjeKeesie/MinecraftGooners/releases/latest">
+          Download voor Android
+        </a>
       </div>
+
+      <p class="hint" id="download-apk-meta">
+        Android 8 of nieuwer &middot; je logt in met hetzelfde account als op
+        deze website
+      </p>
+
+      <div class="status-card" style="margin-top:28px;">
+        <div class="status-main">
+          <span class="status-dot is-maintenance"></span>
+          <div>
+            <div class="status-title">Android vraagt om toestemming</div>
+            <div class="status-sub">
+              Omdat de app niet uit de Play Store komt, vraagt Android of je apps
+              uit deze bron mag installeren. Zet dat aan en ga terug — dan gaat de
+              installatie gewoon verder. Net als bij Windows heeft de app geen
+              betaald certificaat, en dat is de enige reden voor de melding.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section>
+        <h2 style="font-size:1.2rem;">Aan de slag</h2>
+        <ol class="news-steps">
+          <li><strong>Download het bestand</strong> met de knop hierboven.</li>
+          <li><strong>Open het uit je meldingen</strong> of via je map Downloads.</li>
+          <li><strong>Geef toestemming.</strong> Android vraagt eenmalig of je apps
+            uit deze bron mag installeren.</li>
+          <li><strong>Tik op Installeren</strong> en daarna op Openen.</li>
+          <li><strong>Log in en vraag om rechten</strong>, net als bij de andere
+            apparaten.</li>
+        </ol>
+      </section>
+
+      <div class="news-note">
+        <strong>Liever geen los bestand installeren?</strong>
+        <p>Dat hoeft ook niet. Open deze site in Chrome, tik op de drie puntjes
+          rechtsboven en kies <em>App installeren</em>. Je krijgt dan hetzelfde
+          icoontje op je beginscherm, zonder APK.</p>
+        <p style="margin-top:12px;">
+          <button class="btn btn-ghost btn-sm install-app" type="button" style="display:none;">
+            App installeren
+          </button>
+        </p>
+      </div>
+
     </section>
 
-    <!-- ---------- Kleine lettertjes ---------- -->
-    <section>
-      <h2 style="font-size:1.2rem;">Goed om te weten</h2>
-      <p class="hint">
-        Het kruisje sluit de app niet af maar zet hem weg in je taakbalk, zodat
-        hij meldingen kan blijven geven. Echt afsluiten doe je via rechtsklik
-        op het icoontje.
+    <!-- ============================================================
+         MAC
+         ============================================================ -->
+    <section class="tab-panel" id="panel-mac" role="tabpanel">
+
+      <p class="lede" style="font-size:0.98rem;">
+        Voor de Mac is er geen apart programma om te downloaden — en dat is geen
+        gebrek. Je installeert deze website rechtstreeks als app, en dan staat hij
+        gewoon in je Programma's-map en je Dock.
       </p>
+
+      <div style="margin:28px 0 12px;">
+        <button class="btn btn-primary install-app" type="button" style="display:none;">
+          App installeren
+        </button>
+      </div>
+
       <p class="hint">
-        De app controleert niet zelf op updates. Kom hier af en toe kijken of
-        er een nieuwere versie staat.
+        Werkt in Chrome en Edge &middot; je logt in met hetzelfde account als op
+        deze website
       </p>
-      <p class="hint">
-        Alleen voor Windows. Op een Mac of telefoon gebruik je gewoon
-        <a href="beheer.html">het beheerpaneel</a> op deze site.
+
+      <section>
+        <h2 style="font-size:1.2rem;">Aan de slag</h2>
+        <ol class="news-steps">
+          <li><strong>Open deze site in Chrome of Edge.</strong> In Safari werkt het
+            installeren net anders en minder goed.</li>
+          <li><strong>Klik op het installatie-icoontje</strong> rechts in de
+            adresbalk — een schermpje met een pijltje omlaag. Zie je die niet, kijk
+            dan onder de drie puntjes bij <em>Casten, opslaan en delen</em>.</li>
+          <li><strong>Klik op Installeren.</strong> De app opent meteen in een eigen
+            venster en verschijnt in je Dock.</li>
+          <li><strong>Log in en vraag om rechten</strong>, net als bij de andere
+            apparaten.</li>
+        </ol>
+      </section>
+
+      <div class="news-note">
+        <strong>Waarom geen echte Mac-app?</strong>
+        <p>Apple wil dat programma's ondertekend worden met een betaald
+          ontwikkelaarsaccount, anders blokkeert de Mac ze met een vage
+          foutmelding. Voor wat deze app doet — kijken of de server draait en hem
+          aanzetten — werkt de geïnstalleerde website net zo goed, zonder dat
+          gedoe.</p>
+      </div>
+
+    </section>
+
+    <!-- ============================================================
+         IPHONE
+         ============================================================ -->
+    <section class="tab-panel" id="panel-iphone" role="tabpanel">
+
+      <p class="lede" style="font-size:0.98rem;">
+        Ook hier geen download nodig: je zet deze website op je beginscherm en hij
+        gedraagt zich als een gewone app, met eigen icoontje en zonder browserbalk.
       </p>
+
+      <section>
+        <h2 style="font-size:1.2rem;">Aan de slag</h2>
+        <ol class="news-steps">
+          <li><strong>Open deze site in Safari.</strong> Dit werkt niet in Chrome op
+            de iPhone — Apple staat dat alleen in Safari toe.</li>
+          <li><strong>Tik op het deel-icoontje</strong> onderin: een vierkantje met
+            een pijltje omhoog.</li>
+          <li><strong>Scroll omlaag</strong> en tik op <em>Zet op beginscherm</em>.</li>
+          <li><strong>Tik op Voeg toe.</strong> Het icoontje staat nu tussen je
+            andere apps.</li>
+          <li><strong>Log in en vraag om rechten</strong>, net als bij de andere
+            apparaten.</li>
+        </ol>
+      </section>
+
+      <div class="news-note">
+        <strong>Waarom staat dit niet in de App Store?</strong>
+        <p>Apple rekent ongeveer honderd euro per jaar om een app te mogen
+          verspreiden, ook aan een handjevol vrienden. Dat is het voor deze server
+          niet waard. Via het beginscherm krijg je hetzelfde resultaat, gratis.</p>
+      </div>
+
     </section>
 
   </main>
