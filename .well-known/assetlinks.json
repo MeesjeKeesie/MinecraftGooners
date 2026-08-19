@@ -1,1 +1,8 @@
-
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "nl.minecraftgooners.app",
+    "sha256_cert_fingerprints": ["6E:BE:89:B5:16:0E:6B:5D:86:AF:91:31:3B:5E:6A:63:29:EB:1C:93:56:4D:17:1C:70:33:EC:C1:C4:19:7E:EE"]
+  }
+}]
