@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback — MinecraftGooners</title>
+  <meta name="description" content="Klacht, idee of vraag over de server? Laat het hier weten.">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/feedback.js"></script>
+  <script type="module" src="js/pwa.js"></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="aanmelden.html">Aanmelden</a>
+        <a href="nieuws.html">Nieuws</a>
+        <a href="feedback.html" aria-current="page">Feedback</a>
+        <a href="app.html">App Download</a>
+        <a href="beheer.html">Beheer</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <div class="page-header">
+      <span class="eyebrow">Feedback</span>
+      <h1>Zeg wat je ervan vindt</h1>
+      <p class="lede">
+        Iets kapot, iets irritant, of juist een goed idee? Laat het hier
+        achter. Ik lees alles, en wat interessant is voor iedereen zet ik
+        onderaan deze pagina met mijn reactie erbij.
+      </p>
+    </div>
+
+    <!-- ================= FORMULIER ================= -->
+    <form class="form-card" id="feedback-form" novalidate>
+
+      <!-- Honeypot: onzichtbaar voor mensen, vangt simpele spambots -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="category">Waar gaat het over?</label>
+        <select id="category" name="category" class="role-select" required>
+          <option value="idee">Idee of verzoek</option>
+          <option value="klacht">Klacht</option>
+          <option value="bug">Bug of storing</option>
+          <option value="vraag">Vraag</option>
+          <option value="overig">Iets anders</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="title">Korte samenvatting</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          required
+          minlength="3"
+          maxlength="80"
+          autocomplete="off"
+          placeholder="Bijv. Server lagt 's avonds rond 21:00">
+        <div class="hint">Eén zin. Dit is wat er in de lijst komt te staan.</div>
+      </div>
+
+      <div class="field">
+        <label for="message">Vertel het wat uitgebreider</label>
+        <textarea
+          id="message"
+          name="message"
+          required
+          minlength="10"
+          maxlength="2000"
+          placeholder="Wanneer gebeurt het, wat had je verwacht, en wat gebeurde er in plaats daarvan?"></textarea>
+        <div class="hint"><span id="char-count">0</span> / 2000 tekens</div>
+      </div>
+
+      <!-- Alleen zichtbaar als je niet ingelogd bent -->
+      <div class="field" id="email-field">
+        <label for="contact_email">E-mailadres <span style="opacity:0.6;">(optioneel)</span></label>
+        <input
+          type="email"
+          id="contact_email"
+          name="contact_email"
+          maxlength="254"
+          autocomplete="email"
+          placeholder="jij@voorbeeld.nl">
+        <div class="hint">Alleen als je antwoord wilt. Wordt nooit gepubliceerd.</div>
+      </div>
+
+      <!-- Alleen zichtbaar als je wél ingelogd bent -->
+      <div class="maintenance-card" id="anon-row" style="display:none;">
+        <div class="maintenance-text">
+          <div class="status-title">Anoniem insturen</div>
+          <div class="status-sub" id="anon-explainer">
+            Laat dit uit en je naam komt erbij te staan als ik je bericht publiceer.
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="anonymous-toggle">
+          <span class="switch-track"><span class="switch-thumb"></span></span>
+        </label>
+      </div>
+
+      <button class="btn btn-primary" type="submit" id="submit-btn">Versturen</button>
+
+      <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
+
+      <p class="hint" style="margin-top:18px;">
+        Je bericht komt niet meteen online. Ik lees het eerst, en publiceer
+        alleen wat voor iedereen nuttig is.
+      </p>
+    </form>
+
+    <!-- ================= GEPUBLICEERDE BERICHTEN ================= -->
+    <section>
+      <h2 style="font-size:1.2rem;">Wat er al gedeeld is</h2>
+
+      <div class="tabs" role="tablist">
+        <button class="tab-btn is-active" data-filter="alles" type="button">Alles</button>
+        <button class="tab-btn" data-filter="idee" type="button">Ideeën</button>
+        <button class="tab-btn" data-filter="klacht" type="button">Klachten</button>
+        <button class="tab-btn" data-filter="bug" type="button">Bugs</button>
+        <button class="tab-btn" data-filter="vraag" type="button">Vragen</button>
+      </div>
+
+      <div class="request-list" id="feedback-list">
+        <div class="empty-state">Laden…</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">&copy; 2026 MinecraftGooners</div>
+  </footer>
+
+</body>
+</html>
