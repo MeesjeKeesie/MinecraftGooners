@@ -503,12 +503,34 @@ function renderFeedback(rows) {
     }
     actions.appendChild(statusSelect);
 
+    // Kunnen we deze inzender überhaupt bereiken? Een eigen adres telt,
+    // en een account telt ook — daar zit een e-mailadres aan vast.
+    const reachable = Boolean(item.contact_email || item.author_id);
+
+    const mailLabel = document.createElement("label");
+    mailLabel.className = "request-sub";
+    mailLabel.style.display = "inline-flex";
+    mailLabel.style.alignItems = "center";
+    mailLabel.style.gap = "6px";
+
+    const mailToggle = document.createElement("input");
+    mailToggle.type = "checkbox";
+    mailToggle.checked = reachable;
+    mailToggle.disabled = !reachable;
+    mailLabel.appendChild(mailToggle);
+
+    const mailText = document.createElement("span");
+    mailText.textContent = reachable ? "Inzender mailen" : "Geen e-mailadres";
+    mailLabel.appendChild(mailText);
+    actions.appendChild(mailLabel);
+
     const saveBtn = document.createElement("button");
     saveBtn.className = "btn btn-primary btn-sm";
     saveBtn.type = "button";
     saveBtn.textContent = "Opslaan";
     saveBtn.addEventListener("click", () =>
-      saveFeedback(item, replyInput.value.trim(), statusSelect.value, saveBtn));
+      saveFeedback(item, replyInput.value.trim(), statusSelect.value, saveBtn,
+                   mailToggle.checked && !mailToggle.disabled));
     actions.appendChild(saveBtn);
 
     const publishBtn = document.createElement("button");
@@ -530,9 +552,13 @@ function renderFeedback(rows) {
   });
 }
 
-async function saveFeedback(item, reply, status, btn) {
+async function saveFeedback(item, reply, status, btn, notify) {
   btn.disabled = true;
   clearDashError();
+
+  // Is er iets gewijzigd waar de inzender iets aan heeft? Alleen dan mailen.
+  const statusChanged = status !== item.status;
+  const replyChanged = (reply || null) !== (item.owner_reply || null);
 
   const patch = {
     status,
@@ -547,9 +573,27 @@ async function saveFeedback(item, reply, status, btn) {
     .update(patch)
     .eq("id", item.id);
 
-  btn.disabled = false;
-  if (error) { showDashError("Opslaan mislukt: " + error.message); return; }
+  if (error) {
+    btn.disabled = false;
+    showDashError("Opslaan mislukt: " + error.message);
+    return;
+  }
 
+  // Mail versturen mag mislukken zonder dat je wijziging verloren gaat —
+  // die staat op dit punt al in de database.
+  if (notify && (statusChanged || replyChanged)) {
+    const { data, error: mailError } = await supabaseClient.functions.invoke("notify-feedback", {
+      body: { kind: "status", feedback_id: item.id },
+    });
+
+    if (mailError) {
+      showDashError("Opgeslagen, maar de mail kon niet worden verstuurd: " + mailError.message);
+    } else if (data && data.sent === false) {
+      showDashError("Opgeslagen. Geen mail verstuurd: " + (data.reason ?? "onbekende reden"));
+    }
+  }
+
+  btn.disabled = false;
   loadData("feedback");
 }
 
