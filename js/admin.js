@@ -156,6 +156,21 @@ async function loadData(tab) {
     return;
   }
 
+  if (tab === "feedback") {
+    // De tabel zelf, niet feedback_public: als eigenaar wil je ook de
+    // nog niet gepubliceerde berichten en de e-mailadressen zien.
+    const { data, error } = await supabaseClient
+      .from("feedback")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!isCurrent()) return;
+    listContainer.textContent = "";
+    if (error) { showDashError(error.message); return; }
+    renderFeedback(data);
+    return;
+  }
+
   const { data, error } = await supabaseClient
     .from("requests")
     .select("*")
@@ -385,6 +400,202 @@ function renderPlayers(rows) {
 
     listContainer.appendChild(card);
   });
+}
+
+/* ---------------- Feedback ---------------- */
+
+const feedbackCategories = {
+  klacht: "Klacht",
+  idee: "Idee",
+  bug: "Bug",
+  vraag: "Vraag",
+  overig: "Overig",
+};
+
+const feedbackStatuses = {
+  nieuw: "Nieuw",
+  opgepakt: "Opgepakt",
+  opgelost: "Opgelost",
+  afgewezen: "Afgewezen",
+};
+
+function renderFeedback(rows) {
+  if (!rows || rows.length === 0) {
+    listContainer.appendChild(emptyState("Nog geen feedback binnengekomen."));
+    return;
+  }
+
+  rows.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "request-card";
+
+    const info = document.createElement("div");
+    info.className = "request-info";
+
+    // --- kop: samenvatting, categorie, status, zichtbaarheid ---
+    const head = document.createElement("div");
+
+    const name = document.createElement("span");
+    name.className = "request-name";
+    name.textContent = item.title;
+    head.appendChild(name);
+
+    const categoryBadge = document.createElement("span");
+    categoryBadge.className = "badge";
+    categoryBadge.textContent = feedbackCategories[item.category] ?? item.category;
+    head.appendChild(categoryBadge);
+
+    const visibleBadge = document.createElement("span");
+    visibleBadge.className = "badge " + (item.is_published ? "badge-approved" : "badge-pending");
+    visibleBadge.textContent = item.is_published ? "Zichtbaar op de site" : "Niet zichtbaar";
+    head.appendChild(visibleBadge);
+
+    info.appendChild(head);
+
+    // --- van wie, en hoe je hem bereikt ---
+    const who = document.createElement("div");
+    who.className = "request-sub";
+    const parts = [];
+    if (item.is_anonymous) {
+      parts.push(item.author_id ? "Anoniem (wel ingelogd)" : "Anoniem");
+    } else {
+      parts.push(item.author_name || "Naamloos");
+    }
+    if (item.contact_email) parts.push(item.contact_email);
+    who.textContent = parts.join(" \u00B7 ");
+    info.appendChild(who);
+
+    const meta = document.createElement("div");
+    meta.className = "request-meta";
+    meta.textContent = "Ingestuurd: " + dateFormatter.format(new Date(item.created_at));
+    info.appendChild(meta);
+
+    // --- het bericht ---
+    const body = document.createElement("p");
+    body.className = "request-reason";
+    body.textContent = item.message;
+    info.appendChild(body);
+
+    card.appendChild(info);
+
+    // --- antwoordveld ---
+    const noteWrap = document.createElement("div");
+    noteWrap.className = "request-note-wrap";
+    const replyInput = document.createElement("textarea");
+    replyInput.className = "note-input";
+    replyInput.placeholder = "Jouw reactie (komt onder het bericht te staan als je publiceert)";
+    replyInput.value = item.owner_reply ?? "";
+    noteWrap.appendChild(replyInput);
+    card.appendChild(noteWrap);
+
+    // --- knoppen ---
+    const actions = document.createElement("div");
+    actions.className = "request-actions";
+
+    const statusSelect = document.createElement("select");
+    statusSelect.className = "role-select";
+    for (const value of Object.keys(feedbackStatuses)) {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = feedbackStatuses[value];
+      if (item.status === value) option.selected = true;
+      statusSelect.appendChild(option);
+    }
+    actions.appendChild(statusSelect);
+
+    const saveBtn = document.createElement("button");
+    saveBtn.className = "btn btn-primary btn-sm";
+    saveBtn.type = "button";
+    saveBtn.textContent = "Opslaan";
+    saveBtn.addEventListener("click", () =>
+      saveFeedback(item, replyInput.value.trim(), statusSelect.value, saveBtn));
+    actions.appendChild(saveBtn);
+
+    const publishBtn = document.createElement("button");
+    publishBtn.className = "btn " + (item.is_published ? "btn-ghost" : "btn-success") + " btn-sm";
+    publishBtn.type = "button";
+    publishBtn.textContent = item.is_published ? "Verbergen" : "Publiceren";
+    publishBtn.addEventListener("click", () => togglePublish(item, publishBtn));
+    actions.appendChild(publishBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "btn btn-danger btn-sm";
+    deleteBtn.type = "button";
+    deleteBtn.textContent = "Verwijderen";
+    deleteBtn.addEventListener("click", () => deleteFeedback(item, deleteBtn));
+    actions.appendChild(deleteBtn);
+
+    card.appendChild(actions);
+    listContainer.appendChild(card);
+  });
+}
+
+async function saveFeedback(item, reply, status, btn) {
+  btn.disabled = true;
+  clearDashError();
+
+  const patch = {
+    status,
+    owner_reply: reply || null,
+    // Datum alleen zetten als er ook echt een reactie staat, en niet
+    // opnieuw als je later alleen de status aanpast.
+    replied_at: reply ? (item.replied_at ?? new Date().toISOString()) : null,
+  };
+
+  const { error } = await supabaseClient
+    .from("feedback")
+    .update(patch)
+    .eq("id", item.id);
+
+  btn.disabled = false;
+  if (error) { showDashError("Opslaan mislukt: " + error.message); return; }
+
+  loadData("feedback");
+}
+
+async function togglePublish(item, btn) {
+  const publishing = !item.is_published;
+
+  if (publishing) {
+    const confirmed = confirm(
+      "Dit bericht op de site zetten?\n\n" +
+      "Iedereen kan het dan lezen, ook zonder account. " +
+      (item.is_anonymous
+        ? "De naam van de inzender wordt niet getoond."
+        : "De naam van de inzender komt erbij te staan.")
+    );
+    if (!confirmed) return;
+  }
+
+  btn.disabled = true;
+  clearDashError();
+
+  const { error } = await supabaseClient
+    .from("feedback")
+    .update({ is_published: publishing })
+    .eq("id", item.id);
+
+  btn.disabled = false;
+  if (error) { showDashError("Niet gelukt: " + error.message); return; }
+
+  loadData("feedback");
+}
+
+async function deleteFeedback(item, btn) {
+  if (!confirm(`"${item.title}" definitief verwijderen?\n\nDit kun je niet terugdraaien.`)) return;
+
+  btn.disabled = true;
+  clearDashError();
+
+  const { error } = await supabaseClient
+    .from("feedback")
+    .delete()
+    .eq("id", item.id);
+
+  btn.disabled = false;
+  if (error) { showDashError("Verwijderen mislukt: " + error.message); return; }
+
+  loadData("feedback");
 }
 
 /* ---------------- Acties ---------------- */
