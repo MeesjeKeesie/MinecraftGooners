@@ -156,6 +156,27 @@ async function loadData(tab) {
     return;
   }
 
+  if (tab === "theme") {
+    const { data, error } = await supabaseClient
+      .from("site_settings")
+      .select("mode, christmas_start, christmas_end")
+      .eq("id", 1)
+      .single();
+
+    // De berekende stand komt uit de weergave, niet uit de tabel — dan
+    // zie je precies wat bezoekers op dit moment zien.
+    const { data: live } = await supabaseClient
+      .from("site_theme")
+      .select("theme")
+      .single();
+
+    if (!isCurrent()) return;
+    listContainer.textContent = "";
+    if (error) { showDashError(error.message); return; }
+    renderTheme(data, live?.theme ?? "standaard");
+    return;
+  }
+
   if (tab === "feedback") {
     // De tabel zelf, niet feedback_public: als eigenaar wil je ook de
     // nog niet gepubliceerde berichten en de e-mailadressen zien.
@@ -640,6 +661,143 @@ async function deleteFeedback(item, btn) {
   if (error) { showDashError("Verwijderen mislukt: " + error.message); return; }
 
   loadData("feedback");
+}
+
+/* ---------------- Thema ---------------- */
+
+const themeModes = {
+  uit: "Uit — altijd het gewone thema",
+  aan: "Aan — kerst voor iedereen, nu meteen",
+  automatisch: "Automatisch — kerst tussen twee datums",
+};
+
+function renderTheme(settings, activeTheme) {
+  const card = document.createElement("div");
+  card.className = "request-card";
+
+  const info = document.createElement("div");
+  info.className = "request-info";
+  info.style.width = "100%";
+
+  // --- wat zien bezoekers nu ---
+  const head = document.createElement("div");
+  const name = document.createElement("span");
+  name.className = "request-name";
+  name.textContent = "Kerstthema";
+  head.appendChild(name);
+
+  const badge = document.createElement("span");
+  badge.className = "badge " + (activeTheme === "kerst" ? "badge-approved" : "badge-pending");
+  badge.textContent = activeTheme === "kerst" ? "Nu actief" : "Nu uit";
+  head.appendChild(badge);
+  info.appendChild(head);
+
+  const meta = document.createElement("div");
+  meta.className = "request-sub";
+  meta.textContent = "Dit is wat bezoekers op dit moment zien.";
+  info.appendChild(meta);
+
+  // --- stand kiezen ---
+  const modeField = document.createElement("div");
+  modeField.className = "field";
+  modeField.style.marginTop = "20px";
+
+  const modeLabel = document.createElement("label");
+  modeLabel.textContent = "Stand";
+  modeField.appendChild(modeLabel);
+
+  const modeSelect = document.createElement("select");
+  modeSelect.className = "role-select";
+  modeSelect.style.width = "100%";
+  for (const value of Object.keys(themeModes)) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = themeModes[value];
+    if (settings.mode === value) option.selected = true;
+    modeSelect.appendChild(option);
+  }
+  modeField.appendChild(modeSelect);
+  info.appendChild(modeField);
+
+  // --- datums ---
+  const startField = document.createElement("div");
+  startField.className = "field";
+  const startLabel = document.createElement("label");
+  startLabel.textContent = "Kerst begint op";
+  startField.appendChild(startLabel);
+  const startInput = document.createElement("input");
+  startInput.type = "date";
+  startInput.value = settings.christmas_start ?? "";
+  startField.appendChild(startInput);
+  info.appendChild(startField);
+
+  const endField = document.createElement("div");
+  endField.className = "field";
+  const endLabel = document.createElement("label");
+  endLabel.textContent = "En eindigt op";
+  endField.appendChild(endLabel);
+  const endInput = document.createElement("input");
+  endInput.type = "date";
+  endInput.value = settings.christmas_end ?? "";
+  endField.appendChild(endInput);
+
+  const endHint = document.createElement("div");
+  endHint.className = "hint";
+  endHint.textContent =
+    "Alleen dag en maand tellen mee, het jaartal wordt genegeerd. " +
+    "Je hoeft dit dus niet elk jaar opnieuw in te stellen. " +
+    "Een periode over de jaarwisseling heen mag (1 december tot 6 januari).";
+  endField.appendChild(endHint);
+  info.appendChild(endField);
+
+  // Datumvelden alleen tonen als ze ergens toe dienen.
+  function syncFields() {
+    const auto = modeSelect.value === "automatisch";
+    startField.style.display = auto ? "" : "none";
+    endField.style.display = auto ? "" : "none";
+  }
+  modeSelect.addEventListener("change", syncFields);
+  syncFields();
+
+  card.appendChild(info);
+
+  const actions = document.createElement("div");
+  actions.className = "request-actions";
+  const saveBtn = document.createElement("button");
+  saveBtn.className = "btn btn-primary btn-sm";
+  saveBtn.type = "button";
+  saveBtn.textContent = "Opslaan";
+  saveBtn.addEventListener("click", () =>
+    saveTheme(modeSelect.value, startInput.value, endInput.value, saveBtn));
+  actions.appendChild(saveBtn);
+  card.appendChild(actions);
+
+  listContainer.appendChild(card);
+}
+
+async function saveTheme(mode, start, end, btn) {
+  clearDashError();
+
+  if (mode === "automatisch" && (!start || !end)) {
+    showDashError("Vul bij automatisch allebei de datums in.");
+    return;
+  }
+
+  btn.disabled = true;
+
+  const patch = { mode };
+  if (start) patch.christmas_start = start;
+  if (end) patch.christmas_end = end;
+
+  const { error } = await supabaseClient
+    .from("site_settings")
+    .update(patch)
+    .eq("id", 1);
+
+  btn.disabled = false;
+  if (error) { showDashError("Opslaan mislukt: " + error.message); return; }
+
+  loadData("theme");
 }
 
 /* ---------------- Acties ---------------- */
