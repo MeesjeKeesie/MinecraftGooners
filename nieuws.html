@@ -3,6 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem("mcg-scheme");
+        if (s !== "light" && s !== "dark") {
+          s = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-scheme", s);
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("mcg-theme") === "kerst" ? "kerst" : "standaard"
+        );
+      } catch (e) {}
+    })();
+  </script>
   <title>Nieuws — MinecraftGooners</title>
   <meta name="description" content="Updates en aankondigingen over de MinecraftGooners server.">
 
@@ -20,6 +37,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script defer src="js/pwa.js"></script>
+  <script type="module" src="js/theme.js"></script>
 </head>
 <body>
 
