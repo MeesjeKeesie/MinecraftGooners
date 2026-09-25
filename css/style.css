@@ -61,6 +61,15 @@ ul { list-style: none; margin: 0; padding: 0; }
   --radius: 14px;
   --radius-sm: 8px;
   --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+
+  /* Sfeerkleuren die vroeger hardgecodeerd in de opmaak stonden. Ze staan
+     hier zodat een ander thema ze net zo goed kan overschrijven. */
+  --nav-bg: rgba(20, 23, 27, 0.85);
+  --glow-a: rgba(227, 165, 66, 0.06);
+  --glow-b: rgba(76, 126, 168, 0.05);
+  --glow-brand: rgba(227, 165, 66, 0.16);
+  --ring-idle: rgba(107, 113, 120, 0.14);
+  --ring-live: rgba(63, 161, 135, 0.05);
   --max-width: 1080px;
 }
 
@@ -76,8 +85,8 @@ body {
 /* subtiele "torch"-gloed op de achtergrond, heel rustig */
 body {
   background-image:
-    radial-gradient(600px circle at 15% 0%, rgba(227, 165, 66, 0.06), transparent 60%),
-    radial-gradient(500px circle at 100% 30%, rgba(76, 126, 168, 0.05), transparent 55%);
+    radial-gradient(600px circle at 15% 0%, var(--glow-a), transparent 60%),
+    radial-gradient(500px circle at 100% 30%, var(--glow-b), transparent 55%);
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -117,7 +126,7 @@ p { margin: 0 0 1em; color: var(--text); }
   border-bottom: 1px solid var(--border-soft);
   position: sticky;
   top: 0;
-  background: rgba(20, 23, 27, 0.85);
+  background: var(--nav-bg);
   backdrop-filter: blur(8px);
   z-index: 10;
 }
@@ -296,7 +305,7 @@ section + section { margin-top: 96px; }
   inset: -40% -20% auto auto;
   width: 260px;
   height: 260px;
-  background: radial-gradient(circle, rgba(227, 165, 66, 0.16), transparent 70%);
+  background: radial-gradient(circle, var(--glow-brand), transparent 70%);
   animation: torch-flicker 5s ease-in-out infinite;
 }
 .connect-row {
@@ -590,7 +599,7 @@ section + section { margin-top: 96px; }
 }
 .status-dot.is-unknown {
   background: var(--text-faint);
-  box-shadow: 0 0 0 4px rgba(107, 113, 120, 0.14);
+  box-shadow: 0 0 0 4px var(--ring-idle);
 }
 .status-dot.is-maintenance {
   background: var(--lapis);
@@ -599,7 +608,7 @@ section + section { margin-top: 96px; }
 
 @keyframes pulse-dot {
   0%, 100% { box-shadow: 0 0 0 4px var(--emerald-soft); }
-  50% { box-shadow: 0 0 0 8px rgba(63, 161, 135, 0.05); }
+  50% { box-shadow: 0 0 0 8px var(--ring-live); }
 }
 
 .status-title { font-weight: 600; font-size: 0.98rem; }
@@ -894,4 +903,274 @@ section + section { margin-top: 96px; }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+
+/* =====================================================================
+   THEMA'S
+   ---------------------------------------------------------------------
+   Twee onafhankelijke assen op het <html>-element:
+
+     data-scheme="dark" | "light"      -> kiest de bezoeker zelf
+     data-theme="standaard" | "kerst"  -> zet de beheerder om
+
+   Hieronder staan de drie combinaties die afwijken van :root
+   (dat is standaard + donker). Alleen variabelen, geen opmaakregels —
+   daardoor werkt elk thema automatisch op de hele site.
+   ===================================================================== */
+
+/* ---------- Standaard, licht ---------- */
+[data-scheme="light"] {
+  --bg: #f4f5f7;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #eceef1;
+  --border: #d9dde2;
+  --border-soft: #e6e9ed;
+
+  --text: #14171b;
+  --text-muted: #5a6169;
+  --text-faint: #8b939b;
+
+  /* Donkerder goud: #e3a542 is op wit niet te lezen. */
+  --gold: #b9822f;
+  --gold-hover: #a97325;
+  --gold-soft: rgba(185, 130, 47, 0.12);
+
+  --emerald: #2e7c68;
+  --emerald-soft: rgba(46, 124, 104, 0.12);
+
+  --rust: #a9492f;
+  --rust-soft: rgba(169, 73, 47, 0.12);
+
+  --lapis: #3a6285;
+  --lapis-soft: rgba(58, 98, 133, 0.12);
+
+  --shadow: 0 8px 30px rgba(20, 23, 27, 0.10);
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --glow-a: rgba(185, 130, 47, 0.07);
+  --glow-b: rgba(58, 98, 133, 0.06);
+  --glow-brand: rgba(185, 130, 47, 0.14);
+  --ring-idle: rgba(139, 147, 155, 0.18);
+  --ring-live: rgba(46, 124, 104, 0.08);
+}
+
+/* ---------- Kerst, donker ---------- */
+[data-theme="kerst"] {
+  --bg: #121a16;
+  --bg-elevated: #18241e;
+  --bg-elevated-2: #1f2e27;
+  --border: #2c4036;
+  --border-soft: #22322a;
+
+  --text: #edf2ee;
+  --text-muted: #9baba1;
+  --text-faint: #6d7f74;
+
+  /* Kaarslicht in plaats van fakkellicht */
+  --gold: #e8bd5c;
+  --gold-hover: #f5cd72;
+  --gold-soft: rgba(232, 189, 92, 0.14);
+
+  /* Dennengroen */
+  --emerald: #46a86f;
+  --emerald-soft: rgba(70, 168, 111, 0.16);
+
+  /* Kerstrood */
+  --rust: #cf4436;
+  --rust-soft: rgba(207, 68, 54, 0.16);
+
+  /* Vorstblauw */
+  --lapis: #6ba3c9;
+  --lapis-soft: rgba(107, 163, 201, 0.16);
+
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --nav-bg: rgba(18, 26, 22, 0.85);
+  --glow-a: rgba(207, 68, 54, 0.07);
+  --glow-b: rgba(70, 168, 111, 0.07);
+  --glow-brand: rgba(232, 189, 92, 0.18);
+  --ring-idle: rgba(109, 127, 116, 0.16);
+  --ring-live: rgba(70, 168, 111, 0.06);
+}
+
+/* ---------- Kerst, licht ---------- */
+[data-theme="kerst"][data-scheme="light"] {
+  --bg: #f7f4ef;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #efeae2;
+  --border: #ddd6ca;
+  --border-soft: #e8e2d8;
+
+  --text: #1a2420;
+  --text-muted: #59635c;
+  --text-faint: #8a948c;
+
+  --gold: #a87d2a;
+  --gold-hover: #966e22;
+  --gold-soft: rgba(168, 125, 42, 0.12);
+
+  --emerald: #2b6b47;
+  --emerald-soft: rgba(43, 107, 71, 0.12);
+
+  --rust: #a8322a;
+  --rust-soft: rgba(168, 50, 42, 0.12);
+
+  --lapis: #3d708f;
+  --lapis-soft: rgba(61, 112, 143, 0.12);
+
+  --shadow: 0 8px 30px rgba(26, 36, 32, 0.10);
+  --nav-bg: rgba(255, 252, 247, 0.88);
+  --glow-a: rgba(168, 50, 42, 0.06);
+  --glow-b: rgba(43, 107, 71, 0.06);
+  --glow-brand: rgba(168, 125, 42, 0.14);
+  --ring-idle: rgba(138, 148, 140, 0.18);
+  --ring-live: rgba(43, 107, 71, 0.08);
+}
+
+/* Kleuren zachtjes laten overvloeien bij het omschakelen. */
+body, .nav, .card, .news-card, .request-card, .form-card, .status-card {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  body, .nav, .card, .news-card, .request-card, .form-card, .status-card {
+    transition: none;
+  }
+}
+
+
+/* =====================================================================
+   THEMAKNOP IN DE NAVIGATIE
+   ===================================================================== */
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 7px 10px;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+  background: var(--bg-elevated-2);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+
+/* =====================================================================
+   KERSTVERSIERING
+   Alles hieronder verschijnt alleen als data-theme="kerst" aan staat.
+   ===================================================================== */
+
+/* Slinger onder de navigatiebalk */
+[data-theme="kerst"] .nav {
+  border-bottom: none;
+  box-shadow: inset 0 -3px 0 0 transparent;
+}
+[data-theme="kerst"] .nav::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rust) 0 14px,
+    var(--emerald) 14px 28px,
+    var(--gold) 28px 42px
+  );
+  opacity: 0.85;
+}
+[data-theme="kerst"] .nav { position: sticky; }
+
+/* Sneeuwvlokje voor elk klein kopje */
+[data-theme="kerst"] .eyebrow::before {
+  content: "\2744";
+  margin-right: 6px;
+  opacity: 0.8;
+}
+
+/* Rijp langs de bovenrand van kaarten */
+[data-theme="kerst"] .card,
+[data-theme="kerst"] .news-card,
+[data-theme="kerst"] .status-card,
+[data-theme="kerst"] .form-card {
+  position: relative;
+  overflow: hidden;
+}
+[data-theme="kerst"] .card::before,
+[data-theme="kerst"] .news-card::before,
+[data-theme="kerst"] .status-card::before,
+[data-theme="kerst"] .form-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--lapis) 20%,
+    var(--gold) 50%,
+    var(--lapis) 80%,
+    transparent);
+  opacity: 0.5;
+}
+
+/* Het merkteken krijgt een zacht gouden schijnsel */
+[data-theme="kerst"] .brand-mark {
+  color: var(--gold);
+  text-shadow: 0 0 12px var(--gold-soft);
+}
+
+/* ---------- Vallende sneeuw ---------- */
+
+.snow-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.snowflake {
+  position: absolute;
+  top: -5vh;
+  color: #ffffff;
+  user-select: none;
+  will-change: transform;
+  animation-name: snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+[data-scheme="light"] .snowflake {
+  color: #8fb6cf;
+}
+
+@keyframes snow-fall {
+  0% {
+    transform: translate3d(0, -5vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% {
+    transform: translate3d(var(--drift, 30px), 105vh, 0) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Wie in zijn systeem heeft aangegeven geen animaties te willen, krijgt
+   geen sneeuw. Het is versiering, geen informatie. */
+@media (prefers-reduced-motion: reduce) {
+  .snow-layer { display: none; }
 }
