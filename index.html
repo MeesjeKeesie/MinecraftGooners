@@ -3,6 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
+  <script>
+    (function () {
+      try {
+        var s = localStorage.getItem("mcg-scheme");
+        if (s !== "light" && s !== "dark") {
+          s = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-scheme", s);
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("mcg-theme") === "kerst" ? "kerst" : "standaard"
+        );
+      } catch (e) {}
+    })();
+  </script>
   <title>MinecraftGooners — privé whitelist server</title>
   <meta name="description" content="MinecraftGooners: een whitelist-only Minecraft-server voor een klein groepje vrienden. Meld je aan en wacht op goedkeuring.">
   <meta name="google-site-verification" content="0ybZgbTaxp1Y0QHpaeywVJATDzjWAsu-5RRf5W8wbYo" />
@@ -25,6 +42,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script type="module" src="js/status.js"></script>
   <script defer src="js/pwa.js"></script>
+  <script type="module" src="js/theme.js"></script>
 </head>
 <body>
 
