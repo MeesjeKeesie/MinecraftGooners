@@ -11,7 +11,7 @@
  * De cache is er dus puur voor als er geen verbinding is.
  */
 
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `mcgooners-${CACHE_VERSION}`;
 const OFFLINE_PAGE = "/offline.html";
 
@@ -25,6 +25,8 @@ const PRECACHE = [
   "/beheer.html",
   "/account.html",
   "/css/style.css",
+  "/js/theme.js",
+  "/app.html",
   "/icon-192.png",
   "/icon-512.png",
   "/manifest.json",
