@@ -161,10 +161,11 @@ async function refreshSiteTheme() {
   }
 
   try {
+    // site_theme is een weergave die de site zelf uitrekent: uit, aan, of
+    // automatisch tussen twee datums. De browser rekent hier niets aan.
     const { data, error } = await client
-      .from("site_settings")
+      .from("site_theme")
       .select("theme")
-      .eq("id", 1)
       .single();
 
     if (error || !data) return;
