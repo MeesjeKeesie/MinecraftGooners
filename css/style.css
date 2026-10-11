@@ -679,7 +679,7 @@ main > .form-card { margin-bottom: var(--space-8); }
 .login-wrap .form-card { width: 100%; max-width: 480px; }
 
 .status-card { padding: var(--space-5); margin-bottom: var(--space-5); }
-.status-main { display: flex; align-items: flex-start; gap: var(--space-3); }
+.status-main { display: flex; align-items: flex-start; gap: var(--space-2); }
 .status-title { font-family: var(--font-display); font-weight: 600; font-size: 1.0625rem; letter-spacing: -0.01em; }
 .status-sub { color: var(--text-muted); font-size: 0.875rem; margin-top: 2px; }
 .status-meta { color: var(--text-faint); font-size: 0.75rem; margin-top: var(--space-3); letter-spacing: 0.01em; }
@@ -692,7 +692,10 @@ main > .form-card { margin-bottom: var(--space-8); }
 .status-dot {
   flex: none;
   width: 10px; height: 10px;
-  margin-top: 7px;
+  /* De ring eromheen is 4px breed en telt optisch mee. Daarom een kleine
+     zijmarge, anders lijkt het bolletje tegen de rand te plakken en staat
+     de tekst te dicht erop. Rekenkundig klopte het, optisch niet. */
+  margin: 9px 4px 0 4px;
   border-radius: 50%;
   background: var(--text-faint);
   box-shadow: 0 0 0 4px var(--ring-idle);
@@ -969,14 +972,14 @@ main > .form-card { margin-bottom: var(--space-8); }
 .live-status {
   display: inline-flex;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-4);
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-sm);
 }
-.live-status .status-dot { margin-top: 8px; }
+.live-status .status-dot { margin-top: 9px; }
 
 .connect-card { padding: var(--space-2) var(--space-5); }
 
@@ -1016,6 +1019,148 @@ main > .form-card { margin-bottom: var(--space-8); }
 
 
 /* =====================================================================
+   13b. CARROUSEL
+   Horizontaal scrollen met vastklikpunten, plus pijlen voor wie liever
+   klikt. Drie gelijke kolommen is de meest voorspelbare indeling die er
+   bestaat; dit laat zien dat er meer is zonder het allemaal tegelijk te
+   tonen.
+   ===================================================================== */
+
+.scroller { position: relative; }
+
+.scroller-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.scroller-nav { display: flex; gap: var(--space-2); flex: none; }
+
+.scroller-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px; height: 44px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out), opacity 0.2s var(--ease-out),
+              background-color 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
+}
+.scroller-btn:hover:not(:disabled) { background: var(--bg-elevated-2); border-color: var(--text-faint); }
+.scroller-btn:active:not(:disabled), .scroller-btn.is-pressed { transform: scale(0.92); }
+/* Aan het einde: wel zichtbaar, niet klikbaar. Verdwijnen zou de layout
+   laten verspringen en je kwijtmaken. */
+.scroller-btn:disabled { opacity: 0.3; cursor: default; }
+.scroller-btn svg { width: 18px; height: 18px; stroke-linecap: round; stroke-linejoin: round; }
+
+.scroller-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 320px);
+  gap: var(--space-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--space-1);
+  overscroll-behavior-x: contain;
+  padding-bottom: var(--space-3);
+  /* Schuiven voelt beter zonder zichtbare balk; met toetsenbord en pijlen
+     blijft alles bereikbaar. */
+  scrollbar-width: none;
+}
+.scroller-track::-webkit-scrollbar { display: none; }
+.scroller-track > * { scroll-snap-align: start; }
+
+/* De randen vervagen, zodat je ziet dat er meer is. */
+.scroller-track {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 42px), transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 42px), transparent 100%);
+}
+.scroller-track.at-start {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 42px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 42px), transparent 100%);
+}
+.scroller-track.at-end {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px);
+  mask-image: linear-gradient(90deg, transparent 0, #000 18px);
+}
+.scroller-track.at-start.at-end { -webkit-mask-image: none; mask-image: none; }
+
+.scroller-track .rule-card { height: 100%; }
+
+@media (max-width: 640px) {
+  .scroller-track { grid-auto-columns: minmax(240px, 82vw); }
+  .scroller-nav { display: none; }
+}
+
+
+/* =====================================================================
+   13c. TWEE KOLOMMEN BIJ FORMULIEREN
+   Een formulier van 1360px breed is onwerkbaar, maar een smal formulier
+   met een leeg vlak ernaast is lelijk. Dus: formulier links, context
+   rechts. De lege ruimte wordt informatie.
+   ===================================================================== */
+
+.form-layout {
+  display: grid;
+  gap: var(--space-6);
+  align-items: start;
+  margin-bottom: var(--space-8);
+}
+
+@media (min-width: 900px) {
+  .form-layout {
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    gap: var(--space-7);
+  }
+  /* De begeleidende kolom blijft meelopen tijdens het invullen. */
+  .form-aside { position: sticky; top: calc(96px + env(safe-area-inset-top, 0px)); }
+}
+
+.form-layout .form-card { margin-bottom: 0; }
+.form-layout .field input,
+.form-layout .field textarea,
+.form-layout .field select { max-width: none; }
+
+.aside-card {
+  padding: var(--space-5);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+}
+.aside-card + .aside-card { margin-top: var(--space-4); }
+.aside-card h3 { font-size: 1rem; margin-bottom: var(--space-3); }
+.aside-card p { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
+
+.aside-steps { list-style: none; margin: 0; padding: 0; }
+.aside-steps li {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.aside-steps li:last-child { border-bottom: none; }
+.aside-steps b {
+  flex: none;
+  width: 22px; height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* =====================================================================
    14. NIEUWS
    ===================================================================== */
 
@@ -1051,6 +1196,113 @@ main > .form-card { margin-bottom: var(--space-8); }
 }
 .news-note strong { color: var(--gold); display: block; margin-bottom: var(--space-2); }
 .news-note p { margin: 0; color: var(--text-muted); font-size: 0.9375rem; }
+
+
+/* =====================================================================
+   14b. TIJDLIJN
+   Een rail met één punt per bericht. Klikken brengt je er naartoe, en
+   scrollen laat het punt meelopen — zo weet je altijd waar je bent.
+   ===================================================================== */
+
+.timeline { display: grid; gap: var(--space-6); }
+
+@media (min-width: 980px) {
+  .timeline { grid-template-columns: 180px minmax(0, 1fr); gap: var(--space-7); }
+  .timeline-rail {
+    position: sticky;
+    top: calc(104px + env(safe-area-inset-top, 0px));
+    align-self: start;
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .timeline-rail::-webkit-scrollbar { display: none; }
+}
+
+.timeline-rail { position: relative; }
+
+/* De lijn zelf. */
+.timeline-rail::before {
+  content: "";
+  position: absolute;
+  left: 5px; top: 10px; bottom: 10px;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-dot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) 0 var(--space-2) var(--space-5);
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.2s var(--ease-out);
+}
+.timeline-dot::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 11px; height: 11px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  transition: background-color 0.25s var(--ease-out), border-color 0.25s var(--ease-out),
+              transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.timeline-dot:hover { color: var(--text-muted); }
+.timeline-dot.is-active { color: var(--gold); font-weight: 600; }
+.timeline-dot.is-active::before {
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: scale(1.25);
+}
+.timeline-dot.is-pressed::before { transform: scale(0.9); }
+
+/* Op smalle schermen wordt de rail een liggende strook bovenaan. */
+@media (max-width: 979px) {
+  .timeline-rail {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    z-index: 50;
+    padding: var(--space-3) 0;
+    background: var(--nav-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+  .timeline-rail::-webkit-scrollbar { display: none; }
+  .timeline-rail::before { display: none; }
+  .timeline-dot {
+    flex: none;
+    width: auto;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+  }
+  .timeline-dot::before { display: none; }
+  .timeline-dot.is-active { border-color: var(--gold); background: var(--gold-soft); }
+}
+
+.timeline-body { display: flex; flex-direction: column; gap: var(--space-5); min-width: 0; }
+.timeline-body .news-card { scroll-margin-top: calc(120px + env(safe-area-inset-top, 0px)); }
+
+/* Het bericht waar je nu bent springt er zachtjes uit. */
+.timeline-body .news-card { transition: border-color 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out); }
+.timeline-body .news-card.is-current { border-color: var(--gold); box-shadow: var(--shadow-lg); }
 
 
 /* =====================================================================
@@ -1171,6 +1423,8 @@ main > .form-card { margin-bottom: var(--space-8); }
   .reveal { opacity: 1; transform: none; }
   .snow-layer { display: none; }
   .tab-pill { transition: none; }
+  .scroller-track { scroll-behavior: auto; }
+  .timeline-dot::before { transition: none; }
   .status-dot.is-online { animation: none; }
   .btn:active, .copy-btn:active, .theme-toggle:active, .nav-toggle:active,
   .btn.is-pressed, .tab-btn.is-pressed, .copy-btn.is-pressed,
