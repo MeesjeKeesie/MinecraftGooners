@@ -191,3 +191,21 @@ systemQuery.addEventListener("change", () => {
 });
 
 refreshSiteTheme();
+
+/*
+ * De bewegingslaag erbij halen.
+ *
+ * Dit gebeurt hier en niet met een los <script> op elke pagina, omdat
+ * theme.js al overal staat. Zonder dit heeft een pagina op een telefoon
+ * geen menuknop: de stylesheet verbergt de gewone links onder 860px, en
+ * de hamburger wordt door motion.js aangemaakt.
+ *
+ * Laadt een pagina motion.js daarnaast via een eigen scripttag, dan voert
+ * de browser hem maar één keer uit — dezelfde URL is dezelfde module.
+ */
+import("./motion.js").catch(() => {
+  // Lukt het niet, dan blijft de site werken, alleen zonder beweging.
+  // Maar dan moeten de links op smalle schermen wel zichtbaar blijven,
+  // anders kun je nergens meer heen.
+  document.documentElement.classList.add("no-motion");
+});

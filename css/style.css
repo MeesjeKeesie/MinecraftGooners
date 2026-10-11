@@ -69,7 +69,7 @@
   --radius-sm: 10px;
   --radius-pill: 999px;
 
-  --max-width: 1080px;
+  --max-width: 1360px;
 
   /* Eén ritme voor alle afstanden, in rem zodat de layout meeschaalt
      als iemand zijn tekst groter zet. */
@@ -341,12 +341,17 @@ ul { margin: 0 0 var(--space-4); padding-left: 1.25rem; }
   width: 100%;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 var(--space-5);
+  /* Links en rechts apart, NIET de korte schrijfwijze. Die zou ook
+     padding-top op 0 zetten, en omdat een klasse zwaarder weegt dan een
+     elementnaam won dat het van de bovenruimte van main. Daardoor
+     verdween elke eerste kop onder de navigatiebalk. */
+  padding-left: var(--space-5);
+  padding-right: var(--space-5);
 }
 
-main {
-  /* Balkhoogte + veilige zone + lucht. Zonder die laatste plakt je
-     eerste kop tegen de balk aan. */
+main,
+main.container {
+  /* Balkhoogte + veilige zone + lucht. */
   padding-top: calc(72px + env(safe-area-inset-top, 0px) + var(--space-7));
   padding-bottom: var(--space-8);
   min-height: 70vh;
@@ -556,6 +561,17 @@ footer {
 @media (max-width: 860px) {
   .nav-links { display: none; }
   .nav-toggle { display: inline-flex; }
+
+  /* Vangnet: kon de bewegingslaag niet laden, dan is er geen hamburger.
+     Dan tonen we de links alsnog, desnoods op twee regels — geen menu is
+     erger dan een rommelig menu. */
+  .no-motion .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: var(--space-1);
+  }
+  .no-motion .nav-toggle { display: none; }
 }
 
 
@@ -1180,8 +1196,8 @@ main > .form-card { margin-bottom: var(--space-8); }
 @media (max-width: 640px) {
   :root { --space-8: 3rem; --space-7: 2.25rem; }
 
-  .container { padding: 0 var(--space-4); }
-  main { padding-top: calc(64px + var(--space-6)); }
+  .container { padding-left: var(--space-4); padding-right: var(--space-4); }
+  main, main.container { padding-top: calc(64px + env(safe-area-inset-top, 0px) + var(--space-6)); }
   .nav-inner { min-height: 64px; padding: var(--space-2) var(--space-4); }
 
   .form-card, .news-card { padding: var(--space-5); }
@@ -1196,6 +1212,24 @@ main > .form-card { margin-bottom: var(--space-8); }
 
   .tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
 }
+
+/* Op een echt breed scherm mag de site verder uitwaaieren. */
+@media (min-width: 1700px) {
+  :root { --max-width: 1560px; }
+}
+
+/* Breder worden mag niet betekenen dat tekstregels onleesbaar lang
+   worden. De kaart loopt door tot de rand, de invoervelden en de lopende
+   tekst houden een prettige leesbreedte. */
+.field input,
+.field textarea,
+.field select,
+.note-input { max-width: 640px; }
+
+.news-list { max-width: 900px; }
+.console-output { max-width: 1100px; }
+.maintenance-text { max-width: 70ch; }
+.request-reason { max-width: 80ch; }
 
 @media print {
   .nav, .nav-sheet, .nav-scrim, .snow-layer, .theme-toggle, .btn { display: none !important; }
