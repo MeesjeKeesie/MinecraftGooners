@@ -65,86 +65,112 @@
       <p class="lede">Vul je gegevens in. Zodra je aanvraag is bekeken, krijg je bericht op het e-mailadres hieronder.</p>
     </div>
 
-    <form class="form-card" id="signup-form" novalidate>
+    <div class="form-layout">
+      <form class="form-card" id="signup-form" novalidate>
+  
+        <!-- Honeypot: onzichtbaar voor mensen, vangt simpele spambots -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+  
+        <div class="field">
+          <label for="minecraft_name">Minecraft-naam</label>
+          <input
+            type="text"
+            id="minecraft_name"
+            name="minecraft_name"
+            required
+            minlength="3"
+            maxlength="16"
+            pattern="[A-Za-z0-9_]{3,16}"
+            autocomplete="off"
+            placeholder="Bijv. Steve_123">
+          <div class="hint">3–16 tekens: alleen letters, cijfers en underscores.</div>
+        </div>
+  
+        <div class="field">
+          <label for="email">E-mailadres</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            required
+            maxlength="254"
+            autocomplete="email"
+            placeholder="jij@voorbeeld.nl">
+        </div>
+  
+        <div class="field">
+          <label for="discord">Discord-gebruikersnaam</label>
+          <input
+            type="text"
+            id="discord"
+            name="discord"
+            required
+            minlength="2"
+            maxlength="32"
+            autocomplete="off"
+            placeholder="Bijv. meesjekeesie">
+        </div>
+  
+        <div class="field">
+          <label for="age">Leeftijd</label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            required
+            min="5"
+            max="120"
+            inputmode="numeric"
+            placeholder="Bijv. 17">
+        </div>
+  
+        <div class="field">
+          <label for="reason">Waarom wil je meedoen?</label>
+          <textarea
+            id="reason"
+            name="reason"
+            required
+            minlength="3"
+            maxlength="500"
+            placeholder="Vertel kort hoe je de groep kent en waarom je mee wilt spelen."></textarea>
+        </div>
+  
+        <button class="btn btn-primary" type="submit" id="submit-btn">Verstuur aanmelding</button>
+  
+        <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
+  
+        <p class="hint" style="margin-top:18px;">
+          Je gegevens worden alleen gebruikt om je aanmelding te beoordelen en om contact met je op te nemen.
+        </p>
+      </form>
 
-      <!-- Honeypot: onzichtbaar voor mensen, vangt simpele spambots -->
-      <div class="hp-field" aria-hidden="true">
-        <label for="website">Website</label>
-        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
-      </div>
+      <aside class="form-aside">
+        <div class="aside-card">
+          <h3>Wat er daarna gebeurt</h3>
+          <ol class="aside-steps">
+            <li><b>1</b><span>Ik lees je aanmelding. Meestal binnen een dag.</span></li>
+            <li><b>2</b><span>Je krijgt bericht per e-mail, goedgekeurd of niet.</span></li>
+            <li><b>3</b><span>Bij goedkeuring sta je meteen op de whitelist.</span></li>
+          </ol>
+        </div>
 
-      <div class="field">
-        <label for="minecraft_name">Minecraft-naam</label>
-        <input
-          type="text"
-          id="minecraft_name"
-          name="minecraft_name"
-          required
-          minlength="3"
-          maxlength="16"
-          pattern="[A-Za-z0-9_]{3,16}"
-          autocomplete="off"
-          placeholder="Bijv. Steve_123">
-        <div class="hint">3–16 tekens: alleen letters, cijfers en underscores.</div>
-      </div>
+        <div class="aside-card">
+          <h3>Waarom vraag ik dit?</h3>
+          <p>Je Minecraft-naam heb ik nodig voor de whitelist, je e-mailadres om
+            je het antwoord te sturen. Discord en leeftijd helpen me inschatten
+            of je bij de groep past. Verder doe ik er niets mee.</p>
+        </div>
 
-      <div class="field">
-        <label for="email">E-mailadres</label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          required
-          maxlength="254"
-          autocomplete="email"
-          placeholder="jij@voorbeeld.nl">
-      </div>
-
-      <div class="field">
-        <label for="discord">Discord-gebruikersnaam</label>
-        <input
-          type="text"
-          id="discord"
-          name="discord"
-          required
-          minlength="2"
-          maxlength="32"
-          autocomplete="off"
-          placeholder="Bijv. meesjekeesie">
-      </div>
-
-      <div class="field">
-        <label for="age">Leeftijd</label>
-        <input
-          type="number"
-          id="age"
-          name="age"
-          required
-          min="5"
-          max="120"
-          inputmode="numeric"
-          placeholder="Bijv. 17">
-      </div>
-
-      <div class="field">
-        <label for="reason">Waarom wil je meedoen?</label>
-        <textarea
-          id="reason"
-          name="reason"
-          required
-          minlength="3"
-          maxlength="500"
-          placeholder="Vertel kort hoe je de groep kent en waarom je mee wilt spelen."></textarea>
-      </div>
-
-      <button class="btn btn-primary" type="submit" id="submit-btn">Verstuur aanmelding</button>
-
-      <div class="form-message" id="form-message" role="status" aria-live="polite"></div>
-
-      <p class="hint" style="margin-top:18px;">
-        Je gegevens worden alleen gebruikt om je aanmelding te beoordelen en om contact met je op te nemen.
-      </p>
-    </form>
+        <div class="aside-card">
+          <h3>Al aangemeld?</h3>
+          <p>Dan hoef je niets te doen. Een tweede aanmelding versnelt het niet —
+            <a href="feedback.html">stuur een bericht</a> als het lang duurt.</p>
+        </div>
+      </aside>
+    </div>
   </main>
 
   <footer>

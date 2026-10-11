@@ -62,7 +62,12 @@
       <p class="lede">Aankondigingen, wijzigingen en updates over de server verschijnen hier.</p>
     </div>
 
-    <div class="news-list">
+    <div class="timeline">
+      <!-- De punten worden door motion.js gemaakt uit de datums in de
+           artikelen, zodat een nieuw bericht vanzelf meekomt. -->
+      <nav class="timeline-rail" aria-label="Tijdlijn"></nav>
+
+      <div class="timeline-body">
 
       <!--
         Nieuw bericht plaatsen? Kopieer een heel <article class="news-card">-blok,
@@ -201,6 +206,7 @@
         <p>Houd deze pagina dus in de gaten voor het laatste nieuws.</p>
       </article>
 
+      </div>
     </div>
   </main>
 
