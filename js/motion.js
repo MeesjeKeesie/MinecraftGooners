@@ -356,6 +356,168 @@ function setupNavEdge() {
 }
 
 /* =====================================================================
+   Carrousel
+   ===================================================================== */
+
+function setupScrollers() {
+  document.querySelectorAll("[data-scroller]").forEach((scroller) => {
+    const track = scroller.querySelector(".scroller-track");
+    const vorige = scroller.querySelector("[data-scroll-prev]");
+    const volgende = scroller.querySelector("[data-scroll-next]");
+    if (!track) return;
+
+    /** Eén kaart plus de tussenruimte. */
+    function stap() {
+      const kaart = track.firstElementChild;
+      if (!kaart) return 300;
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 16;
+      return kaart.getBoundingClientRect().width + gap;
+    }
+
+    function werkbij() {
+      const max = track.scrollWidth - track.clientWidth;
+      const begin = track.scrollLeft <= 2;
+      const eind = track.scrollLeft >= max - 2;
+
+      track.classList.toggle("at-start", begin);
+      track.classList.toggle("at-end", eind);
+      if (vorige) vorige.disabled = begin;
+      if (volgende) volgende.disabled = eind;
+    }
+
+    function schuif(richting) {
+      // scroll-behavior smooth laat de browser zelf afremmen; dat voelt
+      // beter dan een eigen animatie die met het vegen kan vechten.
+      track.scrollBy({
+        left: richting * stap(),
+        behavior: reduceMotion.matches ? "auto" : "smooth",
+      });
+    }
+
+    vorige?.addEventListener("click", () => schuif(-1));
+    volgende?.addEventListener("click", () => schuif(1));
+
+    let bezig = false;
+    track.addEventListener("scroll", () => {
+      if (bezig) return;
+      bezig = true;
+      requestAnimationFrame(() => { werkbij(); bezig = false; });
+    }, { passive: true });
+
+    window.addEventListener("resize", werkbij, { passive: true });
+    werkbij();
+
+    /* Slepen met de muis. Op touch doet de browser dit al beter dan wij. */
+    let sleept = false, startX = 0, startScroll = 0, verplaatst = 0;
+
+    track.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse") return;
+      sleept = true;
+      verplaatst = 0;
+      startX = e.clientX;
+      startScroll = track.scrollLeft;
+      track.style.cursor = "grabbing";
+      track.style.scrollSnapType = "none";
+    });
+
+    track.addEventListener("pointermove", (e) => {
+      if (!sleept) return;
+      const delta = e.clientX - startX;
+      verplaatst = Math.abs(delta);
+      track.scrollLeft = startScroll - delta;
+    });
+
+    function loslaten() {
+      if (!sleept) return;
+      sleept = false;
+      track.style.cursor = "";
+      // Vastklikken weer aanzetten, zodat hij netjes op een kaart landt.
+      track.style.scrollSnapType = "";
+      werkbij();
+    }
+    track.addEventListener("pointerup", (e) => {
+      // Een sleep van meer dan een paar pixels telt niet als klik.
+      if (verplaatst > 5) e.preventDefault();
+      loslaten();
+    });
+    track.addEventListener("pointerleave", loslaten);
+    track.addEventListener("pointercancel", loslaten);
+  });
+}
+
+/* =====================================================================
+   Tijdlijn
+   ===================================================================== */
+
+function setupTimeline() {
+  const rail = document.querySelector(".timeline-rail");
+  const body = document.querySelector(".timeline-body");
+  if (!rail || !body) return;
+
+  const kaarten = [...body.querySelectorAll(".news-card")];
+  if (!kaarten.length) return;
+
+  // De punten worden hier gemaakt, uit de datums die al in de artikelen
+  // staan. Zo kun je een nieuw bericht toevoegen zonder de rail bij te
+  // werken.
+  const punten = kaarten.map((kaart, i) => {
+    if (!kaart.id) kaart.id = "bericht-" + (i + 1);
+
+    const datum = kaart.querySelector(".news-date")?.textContent.trim() ?? "";
+    const titel = kaart.querySelector("h2")?.textContent.trim() ?? "";
+
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.className = "timeline-dot";
+    knop.textContent = datum;
+    knop.title = titel;
+    knop.setAttribute("aria-label", datum + " — " + titel);
+
+    knop.addEventListener("click", () => {
+      kaart.scrollIntoView({
+        behavior: reduceMotion.matches ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+
+    rail.appendChild(knop);
+    return knop;
+  });
+
+  function markeer(index) {
+    punten.forEach((p, i) => p.classList.toggle("is-active", i === index));
+    kaarten.forEach((k, i) => k.classList.toggle("is-current", i === index));
+
+    // Op smalle schermen is de rail zelf een strook die kan scrollen;
+    // het actieve punt moet in beeld blijven.
+    const actief = punten[index];
+    if (actief && rail.scrollWidth > rail.clientWidth) {
+      actief.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
+  }
+
+  if ("IntersectionObserver" in window) {
+    const zichtbaar = new Map();
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => zichtbaar.set(e.target, e.isIntersecting ? e.intersectionRatio : 0));
+        // Het bericht dat het meest in beeld staat, is waar je bent.
+        let beste = 0, besteRatio = -1;
+        kaarten.forEach((k, i) => {
+          const r = zichtbaar.get(k) ?? 0;
+          if (r > besteRatio) { besteRatio = r; beste = i; }
+        });
+        if (besteRatio > 0) markeer(beste);
+      },
+      { rootMargin: "-20% 0px -45% 0px", threshold: [0, 0.2, 0.5, 0.8, 1] }
+    );
+    kaarten.forEach((k) => io.observe(k));
+  }
+
+  markeer(0);
+}
+
+/* =====================================================================
    Onthullen bij scrollen
    ===================================================================== */
 
@@ -364,7 +526,7 @@ function setupReveal() {
   if (!("IntersectionObserver" in window)) return;
 
   const targets = document.querySelectorAll(
-    "main > section, .rule-card, .news-card, .request-card, .card"
+    "main > section, .scroller-track .rule-card, .timeline-body .news-card, .card"
   );
   if (!targets.length) return;
 
@@ -398,5 +560,7 @@ function setupReveal() {
   setupNavSheet();
   setupPressFeedback();
   setupTabs();
+  setupScrollers();
+  setupTimeline();
   setupReveal();
 })();
