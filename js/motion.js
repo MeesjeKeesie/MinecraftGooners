@@ -85,7 +85,71 @@ function project(velocity, decelerationRate = 0.998) {
    Schuifmenu
    ===================================================================== */
 
+/**
+ * Bouwt de hamburger, het verduisterende vlak en het schuifmenu, tenzij
+ * ze al in de HTML staan.
+ *
+ * Dit hoort hier en niet in elk HTML-bestand: onder 860px verbergt de
+ * stylesheet de gewone links, dus zonder dit zou een pagina zonder
+ * hamburger op een telefoon helemaal geen navigatie meer hebben.
+ */
+function buildNavChrome() {
+  const nav = document.querySelector(".nav");
+  const inner = document.querySelector(".nav-inner");
+  const links = document.querySelector(".nav-links");
+  if (!nav || !inner || !links) return;
+
+  let toggle = document.querySelector(".nav-toggle");
+  if (!toggle) {
+    toggle = document.createElement("button");
+    toggle.className = "nav-toggle";
+    toggle.type = "button";
+    toggle.setAttribute("aria-label", "Menu openen");
+    toggle.setAttribute("aria-controls", "nav-sheet");
+    toggle.appendChild(document.createElement("span"));
+    inner.appendChild(toggle);
+  }
+
+  let scrim = document.querySelector(".nav-scrim");
+  if (!scrim) {
+    scrim = document.createElement("div");
+    scrim.className = "nav-scrim";
+    document.body.appendChild(scrim);
+  }
+
+  let sheet = document.querySelector(".nav-sheet");
+  if (!sheet) {
+    sheet = document.createElement("aside");
+    sheet.className = "nav-sheet";
+    sheet.id = "nav-sheet";
+    sheet.setAttribute("aria-label", "Menu");
+
+    const handle = document.createElement("div");
+    handle.className = "nav-sheet-handle";
+    handle.setAttribute("aria-hidden", "true");
+    sheet.appendChild(handle);
+
+    const kop = document.createElement("span");
+    kop.className = "eyebrow";
+    kop.textContent = "Navigatie";
+    sheet.appendChild(kop);
+
+    // Dezelfde links, dezelfde volgorde, dezelfde actieve pagina.
+    links.querySelectorAll("a").forEach((link) => {
+      const kopie = document.createElement("a");
+      kopie.href = link.getAttribute("href");
+      kopie.textContent = link.textContent.trim();
+      if (link.hasAttribute("aria-current")) kopie.setAttribute("aria-current", "page");
+      sheet.appendChild(kopie);
+    });
+
+    document.body.appendChild(sheet);
+  }
+}
+
 function setupNavSheet() {
+  buildNavChrome();
+
   const sheet = document.querySelector(".nav-sheet");
   const scrim = document.querySelector(".nav-scrim");
   const toggle = document.querySelector(".nav-toggle");
@@ -205,6 +269,70 @@ function setupNavSheet() {
 }
 
 /* =====================================================================
+   Drukreactie
+   Oplichten op het moment dat je indrukt, niet bij het loslaten. Dat is
+   het verschil tussen een interface die leeft en eentje die dood aanvoelt.
+   ===================================================================== */
+
+function setupPressFeedback() {
+  const SELECTOR = ".btn, .tab-btn, .copy-btn, .theme-toggle, .nav-toggle, .nav-sheet a";
+
+  document.addEventListener("pointerdown", (e) => {
+    const el = e.target.closest(SELECTOR);
+    if (el && !el.disabled) el.classList.add("is-pressed");
+  }, { passive: true });
+
+  const los = (e) => {
+    const el = e.target.closest ? e.target.closest(SELECTOR) : null;
+    if (el) el.classList.remove("is-pressed");
+    // Ook alles opruimen waar de vinger ondertussen vanaf gegleden is.
+    document.querySelectorAll(".is-pressed").forEach((n) => n.classList.remove("is-pressed"));
+  };
+  document.addEventListener("pointerup", los, { passive: true });
+  document.addEventListener("pointercancel", los, { passive: true });
+}
+
+/* =====================================================================
+   Tabbladen: het bolletje schuift mee
+   ===================================================================== */
+
+function setupTabs() {
+  document.querySelectorAll(".tabs").forEach((tabs) => {
+    const knoppen = [...tabs.querySelectorAll(".tab-btn")];
+    if (knoppen.length < 2) return;
+
+    const pil = document.createElement("span");
+    pil.className = "tab-pill";
+    pil.setAttribute("aria-hidden", "true");
+    tabs.prepend(pil);
+
+    function verplaats(animeren = true) {
+      const actief = tabs.querySelector(".tab-btn.is-active") || knoppen[0];
+      const doel = actief.offsetLeft;
+      pil.style.width = actief.offsetWidth + "px";
+      pil.style.height = actief.offsetHeight + "px";
+      pil.style.top = actief.offsetTop + "px";
+
+      if (!animeren || reduceMotion.matches || !springAvailable) {
+        pil.style.transform = `translate3d(${doel}px, 0, 0)`;
+        return;
+      }
+      // Kritisch gedempt: het bolletje glijdt, het stuitert niet.
+      animate(pil, { x: doel }, { type: "spring", bounce: 0, duration: 0.35 });
+    }
+
+    verplaats(false);
+    tabs.addEventListener("click", () => requestAnimationFrame(() => verplaats(true)));
+    window.addEventListener("resize", () => verplaats(false), { passive: true });
+
+    // De tabbladen worden soms pas gevuld nadat de pagina geladen is.
+    new MutationObserver(() => verplaats(false)).observe(tabs, {
+      attributes: true, subtree: true, attributeFilter: ["class"],
+    });
+  });
+}
+
+/* =====================================================================
    Rand onder de navigatiebalk
    Alleen een scheiding tonen wanneer er ook echt iets onderdoor schuift.
    ===================================================================== */
@@ -268,5 +396,7 @@ function setupReveal() {
   await loadMotion();
   setupNavEdge();
   setupNavSheet();
+  setupPressFeedback();
+  setupTabs();
   setupReveal();
 })();

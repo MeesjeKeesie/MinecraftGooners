@@ -289,6 +289,10 @@ h2 {
   letter-spacing: -0.018em;
 }
 
+/* Een kop die direct op een kaart volgt had geen enkele ademruimte. */
+section > h2:first-child,
+.form-card + h2 { margin-top: 0; }
+
 h3 {
   font-size: 1.125rem;
   line-height: 1.3;
@@ -341,7 +345,9 @@ ul { margin: 0 0 var(--space-4); padding-left: 1.25rem; }
 }
 
 main {
-  padding-top: calc(72px + var(--space-7));
+  /* Balkhoogte + veilige zone + lucht. Zonder die laatste plakt je
+     eerste kop tegen de balk aan. */
+  padding-top: calc(72px + env(safe-area-inset-top, 0px) + var(--space-7));
   padding-bottom: var(--space-8);
   min-height: 70vh;
 }
@@ -370,12 +376,29 @@ footer {
   top: 0; left: 0; right: 0;
   z-index: 100;
   background: var(--nav-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
   border-bottom: 1px solid transparent;
+  /* Ruimte voor de inkeping / statusbalk van een telefoon. */
+  padding-top: env(safe-area-inset-top, 0px);
   transition: border-color 0.3s var(--ease-out), background-color 0.3s var(--ease-soft);
 }
 .nav.is-scrolled { border-bottom-color: var(--edge); }
+
+/* Randeffect: content vervaagt weg onder de balk in plaats van er hard
+   tegenaan te worden afgekapt. Verschijnt alleen als er ook echt iets
+   onderdoor schuift. */
+.nav::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 100%;
+  height: 28px;
+  background: linear-gradient(to bottom, var(--nav-bg), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-out);
+}
+.nav.is-scrolled::before { opacity: 1; }
 
 .nav-inner {
   max-width: var(--max-width);
@@ -429,7 +452,7 @@ footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px; min-height: 36px;
+  min-width: 40px; min-height: 40px;
   margin-left: var(--space-2);
   background: none;
   border: 1px solid var(--border);
@@ -450,7 +473,8 @@ footer {
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px; height: 40px;
+  /* 44px is de ondergrens voor iets dat je met een duim moet raken. */
+  width: 44px; height: 44px;
   background: none;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -560,7 +584,7 @@ footer {
               color 0.18s var(--ease-out),
               box-shadow 0.18s var(--ease-out);
 }
-.btn:active { transform: scale(0.97); }
+.btn:active, .btn.is-pressed { transform: scale(0.97); }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
 .btn-primary { background: var(--gold); color: var(--bg); box-shadow: var(--shadow-sm); }
@@ -628,10 +652,15 @@ footer {
 }
 
 .card { padding: var(--space-5); }
-.form-card { padding: var(--space-6); max-width: 560px; }
+
+/* Geen eigen maximumbreedte: anders lijnt een formulier niet uit met de
+   secties eronder, en dat was precies wat er misging. Een formulier
+   zonder sectie eromheen krijgt wel ruimte onder zich. */
+.form-card { padding: var(--space-6); }
+main > .form-card { margin-bottom: var(--space-8); }
 
 .login-wrap { display: flex; justify-content: center; padding: var(--space-6) 0; }
-.login-wrap .form-card { width: 100%; }
+.login-wrap .form-card { width: 100%; max-width: 480px; }
 
 .status-card { padding: var(--space-5); margin-bottom: var(--space-5); }
 .status-main { display: flex; align-items: flex-start; gap: var(--space-3); }
@@ -853,6 +882,30 @@ footer {
 
 .tab-panel { display: none; }
 .tab-panel.is-active { display: block; }
+
+/* Het bolletje dat achter het actieve tabblad meeschuift. Omdat het één
+   element is dat beweegt (in plaats van een achtergrond die aan- en
+   uitspringt), kun je zien waar je vandaan komt. */
+.tab-pill {
+  position: absolute;
+  left: 0; top: 0;
+  border-radius: var(--radius-pill);
+  background: var(--bg-elevated-2);
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+}
+.tabs { position: relative; }
+.tab-btn { position: relative; z-index: 1; }
+/* De achtergrond doet het bolletje nu, dus die mag hier weg. */
+.tab-btn.is-active { background: none; box-shadow: none; color: var(--gold); }
+
+/* Drukstaat die motion.js zet bij pointerdown — werkt ook met een muis,
+   en blijft staan zolang je de knop ingedrukt houdt. */
+.tab-btn.is-pressed, .copy-btn.is-pressed { transform: scale(0.96); }
+.theme-toggle.is-pressed, .nav-toggle.is-pressed { transform: scale(0.92); }
+.nav-sheet a.is-pressed { background: var(--bg-elevated-2); }
 
 
 /* =====================================================================
@@ -1101,8 +1154,11 @@ footer {
 
   .reveal { opacity: 1; transform: none; }
   .snow-layer { display: none; }
+  .tab-pill { transition: none; }
   .status-dot.is-online { animation: none; }
-  .btn:active, .copy-btn:active, .theme-toggle:active, .nav-toggle:active { transform: none; }
+  .btn:active, .copy-btn:active, .theme-toggle:active, .nav-toggle:active,
+  .btn.is-pressed, .tab-btn.is-pressed, .copy-btn.is-pressed,
+  .theme-toggle.is-pressed, .nav-toggle.is-pressed { transform: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
