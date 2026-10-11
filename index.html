@@ -151,10 +151,19 @@
     </section>
 
     <!-- ================= SPELREGELS ================= -->
-    <section>
-      <span class="eyebrow">Voordat je begint</span>
-      <h2>Spelregels</h2>
-      <div class="rules-grid">
+    <section class="scroller" data-scroller>
+      <div class="scroller-head">
+        <div>
+          <span class="eyebrow">Voordat je begint</span>
+          <h2 style="margin-bottom:0;">Spelregels</h2>
+        </div>
+        <div class="scroller-nav">
+          <button class="scroller-btn" type="button" data-scroll-prev aria-label="Vorige regel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="scroller-btn" type="button" data-scroll-next aria-label="Volgende regel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+
+      <div class="scroller-track">
         <div class="rule-card">
           <svg class="rule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.5-9 9-9 9z"/></svg>
           <h3>Respect</h3>
