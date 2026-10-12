@@ -7,6 +7,7 @@
        bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
   <script>
     (function () {
+      document.documentElement.classList.add("js");
       try {
         var s = localStorage.getItem("mcg-scheme");
         if (s !== "light" && s !== "dark") {
@@ -52,7 +53,7 @@
         <a href="aanmelden.html" aria-current="page">Aanmelden</a>
         <a href="nieuws.html">Nieuws</a>
         <a href="feedback.html">Feedback</a>
-        <a href="app.html">App Download</a>
+        <a href="app.html">App</a>
         <a href="beheer.html">Beheer</a>
       </div>
     </div>
@@ -173,8 +174,38 @@
     </div>
   </main>
 
-  <footer>
-    <div class="container">&copy; 2026 MinecraftGooners — gemaakt voor het clubje, door het clubje.</div>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-cols">
+        <div class="footer-brand">
+          <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+          <p>Een privé whitelist-server voor een vaste groep vrienden. Geen randoms, geen chaos.</p>
+        </div>
+        <nav class="footer-col" aria-label="Server">
+          <h3>Server</h3>
+          <a href="index.html">Home</a>
+          <a href="aanmelden.html">Aanmelden</a>
+          <a href="nieuws.html">Nieuws</a>
+          <a href="feedback.html">Feedback</a>
+        </nav>
+        <nav class="footer-col" aria-label="Voor leden">
+          <h3>Voor leden</h3>
+          <a href="beheer.html">Serverbesturing</a>
+          <a href="account.html">Mijn account</a>
+          <a href="app.html">App</a>
+        </nav>
+        <div class="footer-col">
+          <h3>Verbinden</h3>
+          <span class="mono">play.minecraftgooners.nl</span>
+          <span>Java Edition 26.2</span>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <span>Gemaakt voor het clubje, door het clubje.</span>
+      </div>
+    </div>
+    <div class="footer-watermark" aria-hidden="true">MINECRAFTGOONERS</div>
   </footer>
 
 </body>

@@ -7,6 +7,7 @@
        bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
   <script>
     (function () {
+      document.documentElement.classList.add("js");
       try {
         var s = localStorage.getItem("mcg-scheme");
         if (s !== "light" && s !== "dark") {
@@ -51,7 +52,7 @@
         <a href="index.html">Home</a>
         <a href="nieuws.html">Nieuws</a>
         <a href="feedback.html">Feedback</a>
-        <a href="app.html">App Download</a>
+        <a href="app.html">App</a>
         <a href="#" id="logout-link">Uitloggen</a>
       </div>
     </div>
@@ -179,8 +180,13 @@
     </div>
   </main>
 
-  <footer>
-    <div class="container">&copy; 2026 MinecraftGooners</div>
+  <footer class="site-footer is-compact">
+    <div class="container">
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <a href="index.html">Terug naar de site</a>
+      </div>
+    </div>
   </footer>
 
 </body>
