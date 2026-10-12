@@ -69,7 +69,8 @@
   --radius-sm: 10px;
   --radius-pill: 999px;
 
-  --max-width: 1360px;
+  /* In rem, zodat de container meegroeit als het lettertype meeschaalt. */
+  --max-width: 96rem;
 
   /* Eén ritme voor alle afstanden, in rem zodat de layout meeschaalt
      als iemand zijn tekst groter zet. */
@@ -87,6 +88,41 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
   --ease-soft: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  /* Veren. Gesimuleerd met dezelfde stijfheid en demping als de
+     react-spring-configs uit de ontwerpprompt, en omgezet naar CSS
+     linear() (zie @supports verderop). Dit zijn de terugvalcurves voor
+     browsers die linear() nog niet kennen. */
+  --spring-snappy: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring-snappy-duration: 0.5s;
+  --spring-lift: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring-lift-duration: 0.5s;
+  --spring-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --spring-smooth-duration: 0.6s;
+  --spring-reveal: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-reveal-duration: 0.8s;
+
+  --hero-bg: var(--bg-elevated);
+  --loader-bg: #0d0f12;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* tension 320, friction 18 — 16% doorveren, voor hovers */
+    --spring-snappy: linear(0, 0.072, 0.242, 0.46, 0.674, 0.859, 1.001, 1.095, 1.146, 1.16, 1.148, 1.12, 1.086, 1.051, 1.022, 0.999, 0.985, 0.977, 0.975, 0.977, 0.981, 0.986, 0.992, 0.997, 1, 1.003, 1.004, 1.004, 1.004, 1.003, 1.002, 1.001, 1.001, 1, 1);
+    --spring-snappy-duration: 0.77s;
+    /* tension 320, friction 22 — 8,5% doorveren, voor optillen */
+    --spring-lift: linear(0, 0.049, 0.167, 0.32, 0.482, 0.636, 0.771, 0.881, 0.965, 1.024, 1.061, 1.08, 1.085, 1.081, 1.071, 1.058, 1.045, 1.031, 1.02, 1.01, 1.003, 0.998, 0.995, 0.993, 0.993, 0.993, 0.994, 0.995, 0.996, 0.997, 0.998, 0.999, 1, 1, 1);
+    --spring-lift-duration: 0.63s;
+    /* tension 210, friction 26 — vrijwel kritisch gedempt */
+    --spring-smooth: linear(0, 0.019, 0.066, 0.131, 0.206, 0.288, 0.368, 0.445, 0.518, 0.585, 0.646, 0.7, 0.748, 0.792, 0.828, 0.859, 0.885, 0.908, 0.926, 0.942, 0.954, 0.965, 0.973, 0.98, 0.986, 0.99, 0.993, 0.996, 0.997, 0.999, 1, 1.001, 1.001, 1.001, 1);
+    --spring-smooth-duration: 0.48s;
+    /* tension 180, friction 26 — kritisch gedempt, voor onthullen */
+    --spring-reveal: linear(0, 0.027, 0.089, 0.173, 0.265, 0.358, 0.444, 0.526, 0.599, 0.664, 0.719, 0.768, 0.809, 0.844, 0.872, 0.897, 0.917, 0.933, 0.946, 0.957, 0.966, 0.973, 0.979, 0.983, 0.987, 0.99, 0.992, 0.994, 0.995, 0.996, 0.997, 0.998, 0.998, 0.999, 1);
+    --spring-reveal-duration: 0.62s;
+  }
 }
 
 /* ---------- Standaard, licht ---------- */
@@ -164,6 +200,7 @@
   --glow-brand: rgba(232, 189, 92, 0.18);
   --ring-idle: rgba(109, 127, 116, 0.16);
   --ring-live: rgba(70, 168, 111, 0.06);
+  --loader-bg: #0c1310;
 }
 
 /* ---------- Kerst, licht ---------- */
@@ -212,7 +249,20 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-html, body { height: 100%; }
+
+/* Boven 1920px groeit alles mee, gedempt (factor 0,6666 uit de prompt).
+   Omdat alles in rem staat, schaalt de hele layout proportioneel en blijft
+   een groot scherm niet half leeg. 100% respecteert de lettergrootte die
+   iemand zelf heeft ingesteld. */
+@media (min-width: 1921px) {
+  html { font-size: calc(100% + (100vw - 1920px) * 0.005555); }
+}
+
+/* Lenis (vloeiend scrollen) — de regels uit lenis.css. */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
 
 body {
   margin: 0;
@@ -311,15 +361,25 @@ ul { margin: 0 0 var(--space-4); padding-left: 1.25rem; }
 }
 
 /* Klein kopje: kleine tekst wil juist iets méér tracking. */
+/* Gewone zinsopbouw met een stipje ervoor. Overal hoofdletters met
+   spatiëring is het voorspelbaarste wat er bestaat. */
 .eyebrow {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--font-body);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-faint);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-muted);
   margin-bottom: var(--space-3);
+}
+.eyebrow::before {
+  content: "";
+  flex: none;
+  width: 0.375rem; height: 0.375rem;
+  border-radius: 999px;
+  background: var(--gold);
 }
 
 .hint {
@@ -548,6 +608,25 @@ footer {
 .nav-sheet a[aria-current="page"] { color: var(--gold); font-weight: 600; }
 .nav-sheet .eyebrow { padding: 0 var(--space-4); margin: var(--space-4) 0 var(--space-2); }
 
+/* Een zichtbare uitweg. Vegen, Escape en naast het paneel tikken werken
+   ook, maar die moet je kennen; deze knop zie je. */
+.nav-sheet-close {
+  position: absolute;
+  top: calc(var(--space-4) + env(safe-area-inset-top, 0px));
+  right: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-out), background-color 0.15s var(--ease-out);
+}
+.nav-sheet-close:active, .nav-sheet-close.is-pressed { transform: scale(0.92); }
+.nav-sheet-close svg { width: 16px; height: 16px; }
+
 .nav-sheet-handle {
   position: absolute;
   left: 6px; top: 50%;
@@ -600,7 +679,40 @@ footer {
               color 0.18s var(--ease-out),
               box-shadow 0.18s var(--ease-out);
 }
-.btn:active, .btn.is-pressed { transform: scale(0.97); }
+/* Indrukken is snel, loslaten veert terug. */
+.btn:active, .btn.is-pressed {
+  transform: scale(0.97);
+  transition: transform 0.12s var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn { transition-property: transform, background-color, border-color, color, box-shadow;
+         transition-duration: var(--spring-snappy-duration), 0.18s, 0.18s, 0.18s, 0.18s;
+         transition-timing-function: var(--spring-snappy), var(--ease-out), var(--ease-out), var(--ease-out), var(--ease-out); }
+  .btn:hover:not(:disabled) { transform: scale(1.03); }
+  .btn:active:not(:disabled), .btn.is-pressed { transform: scale(0.97); }
+}
+
+/* Knop met een rond pijlbolletje rechts. */
+.btn-arrow { padding: 0.375rem 0.375rem 0.375rem 1.4rem; gap: 0.875rem; }
+.btn-arrow.btn-sm { padding: 0.3rem 0.3rem 0.3rem 1rem; gap: 0.625rem; }
+.btn-badge {
+  flex: none;
+  display: grid; place-items: center;
+  width: 2.25rem; height: 2.25rem;
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--gold);
+}
+.btn-sm .btn-badge { width: 1.75rem; height: 1.75rem; }
+.btn-ghost .btn-badge { background: var(--text); color: var(--bg); }
+.btn-badge svg {
+  width: 1rem; height: 1rem;
+  transition: transform var(--spring-snappy-duration) var(--spring-snappy);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn-arrow:hover .btn-badge svg { transform: translateX(3px); }
+  .btn-arrow[data-arrow="up-right"]:hover .btn-badge svg { transform: translate(2px, -2px); }
+}
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
 .btn-primary { background: var(--gold); color: var(--bg); box-shadow: var(--shadow-sm); }
@@ -969,14 +1081,18 @@ main > .form-card { margin-bottom: var(--space-8); }
 .hero-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-5); }
 .hero-note { color: var(--text-faint); font-size: 0.8125rem; }
 
+/* Twee regels tekst horen niet in een capsule: die vorm suggereert één
+   middenlijn, en dan lijkt het bolletje naast de eerste regel scheef. Als
+   afgeronde rechthoek leest het als statuskaart en hoort het bolletje
+   vanzelfsprekend bij de titel. Naast twee alternatieven gerenderd; dit won. */
 .live-status {
   display: inline-flex;
   align-items: flex-start;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-4) var(--space-5) var(--space-4) var(--space-4);
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: 1.25rem;
   box-shadow: var(--shadow-sm);
 }
 .live-status .status-dot { margin-top: 9px; }
@@ -1368,7 +1484,10 @@ main > .form-card { margin-bottom: var(--space-8); }
   opacity: 0.85;
 }
 
-[data-theme="kerst"] .eyebrow::before { content: "\2744"; margin-right: 6px; opacity: 0.8; }
+[data-theme="kerst"] .eyebrow::before {
+  content: "\2744"; width: auto; height: auto; background: none; border-radius: 0;
+  color: var(--lapis); font-size: 0.85em;
+}
 
 [data-theme="kerst"] .card::after,
 [data-theme="kerst"] .form-card::after,
@@ -1467,10 +1586,6 @@ main > .form-card { margin-bottom: var(--space-8); }
   .tabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
 }
 
-/* Op een echt breed scherm mag de site verder uitwaaieren. */
-@media (min-width: 1700px) {
-  :root { --max-width: 1560px; }
-}
 
 /* Breder worden mag niet betekenen dat tekstregels onleesbaar lang
    worden. De kaart loopt door tot de rand, de invoervelden en de lopende
@@ -1484,6 +1599,797 @@ main > .form-card { margin-bottom: var(--space-8); }
 .console-output { max-width: 1100px; }
 .maintenance-text { max-width: 70ch; }
 .request-reason { max-width: 80ch; }
+
+
+/* =====================================================================
+   20. ONTHULLEN MET data-reveal
+   ---------------------------------------------------------------------
+   data-reveal            omhoog schuiven + infaden
+   data-reveal="scale"    idem, met een klein beetje groeien
+   data-reveal="fade"     alleen infaden
+   data-reveal="lines"    regel voor regel uit een uitsparing (splitst op <br>)
+   data-reveal="words"    woord voor woord
+   data-delay="200"       extra vertraging in ms
+   data-stagger="90"      op een ouder: kinderen na elkaar
+   data-gate="ready"      pas na het intro-scherm
+
+   Alleen verborgen als JavaScript draait (.js). Laadt motion.js niet op
+   tijd, dan haalt een CSS-vangnet alles na 2,5s alsnog tevoorschijn —
+   inhoud mag nooit onzichtbaar blijven omdat een script hapert.
+   ===================================================================== */
+
+/* De verborgen beginstand staat in :where(), dat telt voor nul mee in
+   de specificiteit. Zonder dat woog de regel die verbergt (met twee
+   :not()'s) zwaarder dan de regel die toont, en bleef alles onzichtbaar. */
+.js :where([data-reveal]:not([data-reveal="lines"], [data-reveal="words"])) {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+}
+.js :where([data-reveal="scale"]) { transform: translate3d(0, 16px, 0) scale(0.96); }
+.js :where([data-reveal="fade"]) { transform: none; }
+.js :where([data-reveal="lines"]:not(.is-split), [data-reveal="words"]:not(.is-split)) { opacity: 0; }
+
+.js:not(.motion-ready) [data-reveal] { animation: reveal-failsafe 0s 2.5s forwards; }
+@keyframes reveal-failsafe { to { opacity: 1; transform: none; } }
+.no-motion [data-reveal] { opacity: 1 !important; transform: none !important; animation: none !important; }
+
+.js [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s var(--ease-out) var(--d, 0ms),
+    transform var(--spring-reveal-duration) var(--spring-reveal) var(--d, 0ms);
+}
+
+/* Regels: elke regel schuift op uit zijn eigen uitsparing. De ruimte
+   eromheen voorkomt dat staarten van g, j en p worden afgeknipt. */
+[data-reveal="lines"] .line {
+  display: block;
+  overflow: hidden;
+  padding: 0 0.08em 0.16em;
+  margin: 0 -0.08em -0.16em;
+}
+[data-reveal="lines"] .line-inner {
+  display: block;
+  transform: translate3d(0, 105%, 0);
+  opacity: 0;
+}
+[data-reveal="lines"].is-revealed .line-inner {
+  transform: none;
+  opacity: 1;
+  transition:
+    transform 0.9s var(--ease-out-cubic) calc(var(--d, 0ms) + var(--i, 0) * var(--stagger, 120ms)),
+    opacity 0.9s var(--ease-out-cubic) calc(var(--d, 0ms) + var(--i, 0) * var(--stagger, 120ms));
+}
+
+/* Woorden */
+[data-reveal="words"] .word {
+  display: inline-block;
+  transform: translate3d(0, 24px, 0);
+  opacity: 0;
+}
+[data-reveal="words"].is-revealed .word {
+  transform: none;
+  opacity: 1;
+  transition:
+    transform 0.7s var(--ease-out-quart) calc(var(--d, 0ms) + var(--i, 0) * 35ms),
+    opacity 0.7s var(--ease-out-quart) calc(var(--d, 0ms) + var(--i, 0) * 35ms);
+}
+
+
+/* =====================================================================
+   21. INTRO — "Wereld genereren"
+   Alleen bij het eerste bezoek per sessie, overslaan met elke toets of
+   klik, en helemaal niet bij minder-beweging. Een laadscherm dat je niet
+   kunt wegklikken is vertraging, geen sfeer.
+   ===================================================================== */
+
+.skip-link {
+  position: fixed;
+  left: 1rem; top: 1rem;
+  z-index: 300;
+  padding: 0.5rem 1rem;
+  border-radius: 0.875rem;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transform: translateY(-250%);
+  transition: transform 0.2s var(--ease-out);
+}
+.skip-link:focus { transform: none; color: var(--bg); }
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  background: var(--loader-bg);
+  color: #f2f3f5;
+  border-radius: 0 0 2rem 2rem;
+  transition: transform 0.85s var(--ease-soft);
+  will-change: transform;
+}
+.loader[hidden] { display: none; }
+.loader.is-leaving { transform: translate3d(0, -100%, 0); }
+
+.loader-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  text-align: center;
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+.loader.is-leaving .loader-center { opacity: 0; transform: translateY(-12px); }
+
+.loader-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.loader-brand .brand-mark { color: var(--gold); font-size: 1.15em; line-height: 1; }
+.loader-tag { margin: 0; font-size: 0.875rem; color: rgba(255, 255, 255, 0.55); }
+
+.loader-progress {
+  width: min(22rem, 72vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: opacity 0.4s var(--ease-out);
+}
+.loader.is-leaving .loader-progress { opacity: 0; }
+.loader-track { height: 1px; background: rgba(255, 255, 255, 0.15); overflow: hidden; }
+.loader-fill { height: 100%; width: 0; background: var(--gold); transition: width 0.1s linear; }
+.loader-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.loader-count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: rgba(255, 255, 255, 0.85); }
+
+html.is-loading, html.is-loading body { overflow: hidden; }
+
+/* De navigatie komt binnen terwijl het intro wegschuift. */
+.nav { transition: border-color 0.3s var(--ease-out), background-color 0.3s var(--ease-soft),
+                   opacity 0.6s var(--ease-out) 0.15s, transform 0.6s var(--ease-out) 0.15s; }
+html.is-loading .nav { opacity: 0; transform: translate3d(0, -14px, 0); }
+
+
+/* =====================================================================
+   22. HERO — een paneel van rand tot rand
+   ===================================================================== */
+
+main.is-flush, main.container.is-flush { padding-top: 0; }
+
+.hero-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--hero-bg);
+  border-radius: 0 0 2rem 2rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (min-width: 1024px) {
+  .hero-stage { display: flex; flex-direction: column; min-height: min(100svh, 64rem); }
+}
+
+/* Laag 0: wat onder je cursor tevoorschijn komt (zie motion.js). */
+.hero-reveal { position: absolute; inset: 0; z-index: 0; }
+.hero-reveal canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.8; }
+
+/* Laag 1: houdt de tekst leesbaar boven het blootgelegde patroon. */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom,
+      color-mix(in srgb, var(--hero-bg) 75%, transparent),
+      transparent 30%, transparent 62%,
+      color-mix(in srgb, var(--hero-bg) 85%, transparent)),
+    radial-gradient(900px circle at 8% 0%, var(--glow-a), transparent 60%),
+    radial-gradient(700px circle at 100% 40%, var(--glow-b), transparent 55%);
+}
+
+.hero-watermark {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: 3.75rem;
+  z-index: 1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -0.045em;
+  font-size: clamp(3rem, 9.4vw, 15rem);
+  color: var(--text);
+}
+.js .hero-watermark[data-reveal].is-revealed { opacity: 0.05; }
+.hero-watermark:not([data-reveal]) { opacity: 0.05; }
+
+.hero-grid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding-top: calc(72px + env(safe-area-inset-top, 0px) + 3rem);
+  padding-bottom: 3rem;
+}
+@media (min-width: 1024px) {
+  .hero-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2.5rem;
+    align-content: center;
+    padding-top: calc(72px + env(safe-area-inset-top, 0px) + 3.5rem);
+    padding-bottom: 5rem;
+  }
+  .hero-main { grid-column: span 7; }
+  .hero-side { grid-column: span 5; justify-self: end; align-self: center; width: 100%; max-width: 24rem; }
+}
+
+.hero-main { display: flex; flex-direction: column; gap: 1.5rem; }
+.hero-main .eyebrow { margin-bottom: 0; }
+.hero-title {
+  margin: 0;
+  max-width: 14ch;
+  font-size: clamp(2.7rem, 1.4rem + 4.8vw, 5.6rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+.hero-main .lede { margin: 0; }
+.hero-main .hero-actions { margin-top: 0.25rem; }
+.hero-main .hero-note { margin: 0; }
+
+/* De kaart rechts: glas over het patroon. Een benadering van Apple's
+   materiaal met backdrop-filter — geen officieel Liquid Glass, dat
+   bestaat alleen op Apple's eigen platforms. */
+.hero-card {
+  padding: 0.5rem;
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--edge-top);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+/* Concentrische hoeken: binnen = buiten (24px) − marge (8px). */
+.hero-card-section { padding: 1rem 1.1rem; border-radius: 1rem; }
+.hero-card-section + .hero-card-section { margin-top: 0.375rem; }
+.hero-card-tile { background: var(--bg); }
+
+.hero-card-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.hero-card .live-status {
+  display: flex;
+  width: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+}
+.hero-card .live-status .status-dot { margin-top: 9px; }
+.hero-card-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.hero-card .connect-value { font-size: 0.95rem; }
+.hero-card-meta { margin-top: 0.6rem; font-size: 0.8125rem; color: var(--text-faint); }
+
+@media (prefers-reduced-transparency: reduce) {
+  .hero-card { background: var(--bg-elevated); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+
+.hero-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.scroll-cue { display: inline-flex; align-items: center; gap: 0.5rem; }
+.scroll-cue span { display: inline-block; animation: nudge 2.4s var(--ease-soft) infinite; }
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+@media (max-width: 640px) { .hero-bar .hide-sm { display: none; } }
+
+
+/* =====================================================================
+   23. OVER DE SERVER
+   ===================================================================== */
+
+.about {
+  display: grid;
+  gap: 3rem;
+  align-items: center;
+  padding-top: clamp(4rem, 3rem + 4vw, 7rem);
+  padding-bottom: clamp(3rem, 2rem + 3vw, 5rem);
+}
+@media (min-width: 1024px) {
+  .about { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: 4rem; }
+}
+.about-aside {
+  position: relative;
+  min-height: 14rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+@media (min-width: 1024px) { .about-aside { min-height: 20rem; } }
+.about-mark {
+  position: absolute;
+  left: -0.12em; top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(11rem, 8rem + 9vw, 20rem);
+  line-height: 1;
+  color: var(--text);
+  opacity: 0.03;
+  pointer-events: none;
+  user-select: none;
+}
+.about-note {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 22rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.about-note .brand-mark { flex: none; color: var(--gold); font-size: 1.4rem; line-height: 1; }
+.about-statement {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.05rem + 1.5vw, 2.35rem);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: -0.018em;
+  text-wrap: pretty;
+}
+.about-statement .muted { color: var(--text-faint); }
+.about-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-soft);
+}
+.about-foot p { margin: 0; font-size: 0.875rem; color: var(--text-faint); }
+
+
+/* =====================================================================
+   24. BAND — Mine / Craft / → / Samen
+   ===================================================================== */
+
+.band {
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+@media (min-width: 640px) { .band { flex-direction: row; gap: 1rem; } }
+.band li { flex: 1; }
+.band-pill {
+  display: grid;
+  place-items: center;
+  height: 6rem;
+  border-radius: 999px;
+  font-family: var(--font-display);
+  font-size: 1.875rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: transform var(--spring-snappy-duration) var(--spring-snappy);
+}
+@media (min-width: 640px) {
+  .band-pill { height: clamp(7rem, 4rem + 5.5vw, 10rem); font-size: clamp(1.9rem, 1.2rem + 1.6vw, 2.7rem); }
+}
+@media (hover: hover) and (pointer: fine) { .band-pill:hover { transform: scale(1.03); } }
+.band-pill svg { width: 2.4rem; height: 2.4rem; }
+.band-pill.is-ghost {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-faint);
+}
+.band-pill.is-light { background: var(--bg-elevated-2); color: var(--text); }
+.band-pill.is-ink { background: var(--text); color: var(--bg); }
+.band-pill.is-accent {
+  background: linear-gradient(135deg, var(--gold-hover), color-mix(in srgb, var(--gold) 72%, #000));
+  color: var(--bg);
+}
+
+
+/* =====================================================================
+   25. RIJEN — alles op één plek
+   Vullen bij hover met een laag die opschaalt, en de inhoud schuift mee.
+   Alleen transform en opacity: niets dat de layout opnieuw laat rekenen.
+   ===================================================================== */
+
+.rows-section { padding-top: clamp(2rem, 1rem + 3vw, 4rem); padding-bottom: clamp(3rem, 2rem + 3vw, 5rem); }
+.rows-head { display: flex; flex-direction: column; margin-bottom: 2.5rem; }
+.rows-head h2 { margin: 0; max-width: 16ch; font-size: clamp(2rem, 1.4rem + 2vw, 3rem); }
+
+.link-rows { list-style: none; margin: 0; padding: 0; }
+.link-rows li + li { border-top: 1px solid var(--border-soft); }
+
+.link-row {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 1.25rem;
+  color: var(--text);
+}
+.link-row:hover { color: var(--text); }
+.link-row::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--bg-elevated);
+  opacity: 0;
+  transform: scaleY(0.7);
+  transition: opacity 0.3s var(--ease-out), transform var(--spring-lift-duration) var(--spring-lift);
+}
+.link-row-inner {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform var(--spring-lift-duration) var(--spring-lift);
+}
+.link-row-index {
+  flex: none;
+  width: 2.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-faint);
+}
+.link-row-title {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 1rem + 1.6vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.link-row-desc { display: none; max-width: 20rem; font-size: 0.875rem; color: var(--text-muted); }
+@media (min-width: 1024px) { .link-row-desc { display: block; } }
+.link-row-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3rem; height: 3rem;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  transition: transform var(--spring-snappy-duration) var(--spring-snappy), background-color 0.2s var(--ease-out);
+}
+.link-row-badge svg { width: 1.1rem; height: 1.1rem; }
+.link-row:focus-visible::before { opacity: 1; transform: none; }
+@media (hover: hover) and (pointer: fine) {
+  .link-row:hover::before { opacity: 1; transform: none; }
+  .link-row:hover .link-row-inner { transform: translateX(0.5rem); }
+  .link-row:hover .link-row-badge { transform: translateX(5px); background: var(--gold); }
+}
+.link-row.is-pressed .link-row-badge { transform: scale(0.92); }
+
+
+/* =====================================================================
+   26. UITGELICHTE KAART
+   ===================================================================== */
+
+.feature-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 4rem;
+  min-height: 22rem;
+  padding: clamp(1.5rem, 1rem + 1.5vw, 2.25rem);
+  border-radius: 2rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  transition: transform var(--spring-lift-duration) var(--spring-lift), box-shadow 0.3s var(--ease-out);
+}
+.feature-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(700px circle at 88% 0%, var(--gold-soft), transparent 60%);
+}
+.feature-card:hover { color: var(--text); }
+@media (hover: hover) and (pointer: fine) {
+  .feature-card:hover { transform: translateY(-6px) scale(1.006); box-shadow: var(--shadow-lg); }
+  .feature-card:hover .feature-badge { transform: rotate(45deg) scale(1.08); }
+}
+.feature-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.feature-badge {
+  display: grid;
+  place-items: center;
+  width: 2.75rem; height: 2.75rem;
+  border-radius: 999px;
+  background: var(--bg-elevated-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: transform var(--spring-snappy-duration) var(--spring-snappy);
+}
+.feature-badge svg { width: 1.1rem; height: 1.1rem; }
+/* Groot en half buiten beeld: dan leest het als watermerk. Klein en in
+   het midden leek het op een afbeelding die niet wilde laden. */
+.feature-mark {
+  position: absolute;
+  right: -0.18em;
+  bottom: -0.22em;
+  z-index: -1;
+  font-size: clamp(14rem, 10rem + 14vw, 26rem);
+  line-height: 1;
+  color: var(--gold);
+  opacity: 0.07;
+  pointer-events: none;
+  user-select: none;
+}
+.feature-body h3 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.3rem);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+}
+.feature-body p { margin: 0; max-width: 36rem; color: var(--text-muted); }
+.feature-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+.feature-tags span {
+  display: inline-flex;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  color: var(--text);
+}
+
+
+/* =====================================================================
+   27. IN CIJFERS
+   Geen zwart paneel zoals in de prompt: midden in een donkere site leest
+   een fel afwijkend vlak als een kopieerfout. Zelfde materiaal als de
+   rest, met de glans als accent.
+   ===================================================================== */
+
+.stats-panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(2.5rem, 2rem + 2vw, 4rem) clamp(1.5rem, 1rem + 3vw, 4rem);
+  border-radius: 2rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.stats-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(700px circle at 100% 100%, var(--glow-b), transparent 60%),
+    radial-gradient(600px circle at 0% 0%, var(--glow-a), transparent 55%);
+}
+.stats-title { margin: 0.5rem 0 0; max-width: 18ch; font-size: clamp(1.8rem, 1.3rem + 1.6vw, 2.6rem); }
+.stats-grid {
+  list-style: none;
+  margin: 3.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 2rem;
+  row-gap: 3rem;
+}
+@media (min-width: 1024px) { .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.stat-num {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 2rem + 3vw, 4.6rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.stat-suffix {
+  margin-left: 0.12em;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 1rem + 1.4vw, 2.2rem);
+  font-weight: 600;
+  color: var(--gold);
+}
+.stat-label { display: block; max-width: 22ch; margin-top: 0.75rem; font-size: 0.875rem; color: var(--text-muted); }
+
+
+/* =====================================================================
+   28. VOETTEKST
+   ===================================================================== */
+
+.site-footer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: clamp(3rem, 2rem + 3vw, 5rem);
+  padding: clamp(4rem, 3rem + 3vw, 6rem) 0 2.5rem;
+  border-radius: 2rem 2rem 0 0;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border);
+  color: var(--text);
+}
+.site-footer.is-compact {
+  margin-top: 0;
+  padding: 2rem 0;
+  border-radius: 0;
+  background: none;
+  border-top: 1px solid var(--border-soft);
+}
+.footer-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 4rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+@media (min-width: 1024px) {
+  .footer-cta { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+}
+.footer-title {
+  margin: 0;
+  max-width: 22ch;
+  font-size: clamp(2.2rem, 1.5rem + 2.6vw, 3.9rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+.footer-cols { display: grid; gap: 3rem; padding-block: 4rem; }
+/* Zonder oproeprij erboven staan de kolommen bovenaan; dan zou hun eigen
+   bovenmarge bij die van de voettekst optellen en een gat geven. */
+.site-footer .container > .footer-cols:first-child { padding-top: 0; }
+@media (min-width: 768px) { .footer-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1024px) { .footer-cols { grid-template-columns: 1.4fr 1fr 1fr 1fr; } }
+.footer-brand .brand::after { display: none; }
+.footer-brand p { margin: 0.9rem 0 0; max-width: 20rem; font-size: 0.875rem; color: var(--text-muted); }
+.footer-col { display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; font-size: 0.9rem; }
+.footer-col h3 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.footer-col a {
+  display: inline-block;
+  color: var(--text-muted);
+  transition: color 0.2s var(--ease-out), transform var(--spring-lift-duration) var(--spring-lift);
+}
+.footer-col span { color: var(--text-muted); }
+@media (hover: hover) and (pointer: fine) {
+  .footer-col a:hover { color: var(--text); transform: translateX(4px); }
+}
+.footer-legal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-soft);
+  font-size: 0.8125rem;
+  color: var(--text-faint);
+}
+@media (min-width: 640px) { .footer-legal { flex-direction: row; } }
+.is-compact .footer-legal { padding-top: 0; border-top: 0; }
+.footer-legal a { color: var(--text-muted); }
+.footer-watermark {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: -0.14em;
+  z-index: -1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+  font-size: clamp(3rem, 9.4vw, 15rem);
+  color: var(--text);
+  opacity: 0.035;
+}
+
+
+/* =====================================================================
+   29. MENU: items schuiven na elkaar binnen
+   ===================================================================== */
+
+.nav-sheet a {
+  opacity: 0;
+  transform: translate3d(1rem, 0, 0);
+  transition:
+    opacity 0.45s var(--ease-out) calc(var(--i, 0) * 45ms + 80ms),
+    transform 0.45s var(--ease-out) calc(var(--i, 0) * 45ms + 80ms),
+    background-color 0.15s var(--ease-out);
+}
+.nav-sheet.is-open a { opacity: 1; transform: none; }
+
+
+/* =====================================================================
+   30. MINDER BEWEGING — voor alles hierboven
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal], [data-reveal] .line-inner, [data-reveal] .word {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .js .hero-watermark[data-reveal] { opacity: 0.05 !important; }
+  .loader { display: none !important; }
+  .scroll-cue span { animation: none; }
+  .nav-sheet a { opacity: 1; transform: none; }
+  .btn:hover, .band-pill:hover, .feature-card:hover,
+  .link-row:hover .link-row-inner, .link-row:hover .link-row-badge,
+  .footer-col a:hover { transform: none !important; }
+}
+
 
 @media print {
   .nav, .nav-sheet, .nav-scrim, .snow-layer, .theme-toggle, .btn { display: none !important; }
