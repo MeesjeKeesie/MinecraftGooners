@@ -6,9 +6,11 @@
   <meta name="theme-color" content="#14171b">
 
   <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
-       bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema.
+       De klasse "js" laat de stylesheet weten dat animaties mogen wachten. -->
   <script>
     (function () {
+      document.documentElement.classList.add("js");
       try {
         var s = localStorage.getItem("mcg-scheme");
         if (s !== "light" && s !== "dark") {
@@ -25,7 +27,7 @@
 
   <title>MinecraftGooners — privé whitelist server</title>
   <meta name="description" content="MinecraftGooners: een whitelist-only Minecraft-server voor een klein groepje vrienden. Meld je aan en wacht op goedkeuring.">
-  <meta name="google-site-verification" content="0ybZgbTaxp1Y0QHpaeywVJATDzjWAsu-5RRf5W8wbYo" />
+  <meta name="google-site-verification" content="0ybZgbTaxp1Y0QHpaeywVJATDzjWAsu-5RRf5W8wbYo">
 
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="alternate icon" href="favicon.ico">
@@ -42,11 +44,91 @@
   <script src="js/home.js" defer></script>
   <script type="module" src="js/pwa.js"></script>
   <script type="module" src="js/theme.js"></script>
-  <script type="module" src="js/motion.js"></script>
 </head>
 <body>
 
-  <a class="visually-hidden" href="#hoofdinhoud">Naar de inhoud</a>
+  <a class="skip-link" href="#hoofdinhoud">Naar de inhoud</a>
+
+  <!-- ================= INTRO =================
+       Alleen bij het eerste bezoek per sessie. Verborgen tot het script
+       eronder besluit hem te tonen, dus zonder JavaScript zie je hem nooit. -->
+  <div class="loader" id="loader" hidden aria-hidden="true">
+    <div class="loader-center">
+      <div class="loader-brand"><span class="brand-mark">&#9635;</span> MinecraftGooners</div>
+      <p class="loader-tag">Wereld genereren…</p>
+    </div>
+    <div class="loader-progress">
+      <div class="loader-track"><div class="loader-fill" id="loader-fill"></div></div>
+      <div class="loader-row"><span>Terrein laden</span><span class="loader-count" id="loader-count">000</span></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var el = document.getElementById("loader");
+      var root = document.documentElement;
+      window.__mcgLoader = true;
+
+      function klaar() {
+        window.__mcgReady = true;
+        document.dispatchEvent(new Event("mcg:ready"));
+      }
+
+      var gezien = false;
+      try { gezien = sessionStorage.getItem("mcg-intro") === "1"; } catch (e) {}
+      if (gezien || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        el.remove();
+        klaar();
+        return;
+      }
+
+      el.hidden = false;
+      root.classList.add("is-loading");
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+
+      var vul = document.getElementById("loader-fill");
+      var tel = document.getElementById("loader-count");
+      var begin = performance.now(), DUUR = 1300, af = false;
+
+      function curve(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+
+      function weg() {
+        if (af) return;
+        af = true;
+        try { sessionStorage.setItem("mcg-intro", "1"); } catch (e) {}
+        vul.style.width = "100%";
+        tel.textContent = "100";
+        el.classList.add("is-leaving");
+        root.classList.remove("is-loading");
+        var opgeruimd = false;
+        function opruimen() {
+          if (opgeruimd) return;
+          opgeruimd = true;
+          el.remove();
+          klaar();
+        }
+        el.addEventListener("transitionend", function (e) { if (e.target === el) opruimen(); });
+        setTimeout(opruimen, 1000);
+      }
+
+      function frame(nu) {
+        if (af) return;
+        var t = Math.min((nu - begin) / DUUR, 1);
+        var p = Math.round(curve(t) * 100);
+        vul.style.width = p + "%";
+        tel.textContent = (p < 10 ? "00" : p < 100 ? "0" : "") + p;
+        if (t < 1) requestAnimationFrame(frame);
+        else setTimeout(weg, 120);
+      }
+      requestAnimationFrame(frame);
+
+      // Nooit opsluiten: elke toets, klik of scrollpoging slaat het over.
+      ["pointerdown", "keydown", "wheel", "touchstart"].forEach(function (ev) {
+        window.addEventListener(ev, weg, { once: true, passive: true });
+      });
+      setTimeout(weg, 4000);
+    })();
+  </script>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -67,91 +149,146 @@
     </div>
   </nav>
 
-  <main class="container" id="hoofdinhoud">
+  <main id="hoofdinhoud" class="is-flush">
 
     <!-- ================= HERO ================= -->
-    <section class="hero">
-      <span class="eyebrow">Privé whitelist server</span>
-      <h1>Bouwen met<br>je eigen clubje</h1>
-      <p class="lede">
-        Een rustige, whitelist-only Minecraft-server voor een klein groepje
-        vrienden. Geen randoms, geen chaos — gewoon lekker bouwen met elkaar.
-      </p>
+    <section class="hero-stage">
+      <div class="hero-reveal" data-ore-reveal></div>
+      <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="hero-watermark" aria-hidden="true" data-reveal="fade" data-gate="ready" data-delay="300">MINECRAFTGOONERS</div>
 
-      <div class="live-status">
-        <span class="status-dot is-unknown" id="home-status-dot"></span>
-        <div>
-          <div class="status-title" id="home-status-text">Status ophalen…</div>
-          <div class="status-sub" id="home-status-sub"></div>
+      <div class="container hero-grid">
+        <div class="hero-main">
+          <span class="eyebrow" data-reveal data-gate="ready" data-delay="200">Privé whitelist server</span>
+          <h1 class="hero-title" data-reveal="lines" data-gate="ready" data-delay="250">Bouwen met<br>je eigen clubje</h1>
+          <p class="lede" data-reveal data-gate="ready" data-delay="550">
+            Een rustige, whitelist-only Minecraft-server voor een klein groepje
+            vrienden. Geen randoms, geen chaos — gewoon lekker bouwen met elkaar.
+          </p>
+          <div class="hero-actions" data-reveal data-gate="ready" data-delay="700">
+            <a class="btn btn-primary btn-arrow" href="aanmelden.html">Meld je aan<span class="btn-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+            <a class="btn btn-ghost" href="beheer.html">Serverbesturing</a>
+          </div>
+          <p class="hero-note" data-reveal data-gate="ready" data-delay="800">
+            Al aangemeld? Je krijgt bericht via e-mail zodra je aanvraag bekeken is.
+          </p>
         </div>
+
+        <aside class="hero-side" data-reveal="scale" data-gate="ready" data-delay="400" aria-label="Serverstatus en verbinden">
+          <div class="hero-card">
+            <div class="hero-card-section hero-card-tile">
+              <div class="hero-card-label">Nu live</div>
+              <div class="live-status">
+                <span class="status-dot is-unknown" id="home-status-dot"></span>
+                <div>
+                  <div class="status-title" id="home-status-text">Status ophalen…</div>
+                  <div class="status-sub" id="home-status-sub"></div>
+                </div>
+              </div>
+            </div>
+            <div class="hero-card-section">
+              <div class="hero-card-row">
+                <div>
+                  <div class="hero-card-label">Server-adres</div>
+                  <div class="connect-value" id="server-address">play.minecraftgooners.nl</div>
+                </div>
+                <button class="copy-btn" id="copy-address" type="button" data-copy="play.minecraftgooners.nl">Kopieer</button>
+              </div>
+              <div class="hero-card-meta">Java Edition 26.2 · alleen met whitelist</div>
+            </div>
+          </div>
+        </aside>
       </div>
 
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="aanmelden.html">Meld je aan</a>
-        <a class="btn btn-ghost" href="beheer.html">Serverbesturing</a>
+      <div class="container hero-bar" data-reveal="fade" data-gate="ready" data-delay="900">
+        <span>Java Edition 26.2</span>
+        <span class="hide-sm">Whitelist-only · vaste groep</span>
+        <span class="scroll-cue">Scroll om te verkennen <span aria-hidden="true">&darr;</span></span>
       </div>
-
-      <p class="hero-note" style="margin-top:18px;">
-        Al aangemeld? Je krijgt bericht via e-mail zodra je aanvraag bekeken is.
-      </p>
     </section>
 
-    <!-- ================= ZO WERKT HET ================= -->
-    <section>
-      <span class="eyebrow">In drie stappen</span>
-      <h2>Zo kom je erop</h2>
-      <p class="lede" style="margin-bottom:var(--space-6);">
-        Van aanmelden tot spelen duurt meestal een dag of minder.
-      </p>
-
-      <div class="rules-grid">
-        <div class="rule-card">
-          <svg class="rule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>
-          <h3>1 — Meld je aan</h3>
-          <p>Vul het formulier in met je Minecraft-naam en vertel kort wie je bent. Duurt een minuut.</p>
-          <p style="margin-top:var(--space-4);"><a href="aanmelden.html">Naar het formulier &rarr;</a></p>
-        </div>
-
-        <div class="rule-card">
-          <svg class="rule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/></svg>
-          <h3>2 — Wacht op bericht</h3>
-          <p>Je krijgt automatisch een e-mail zodra je aanvraag bekeken is, goedgekeurd of niet.</p>
-        </div>
-
-        <div class="rule-card">
-          <svg class="rule-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
-          <h3>3 — Join</h3>
-          <p>Zodra je op de whitelist staat kun je het serveradres hieronder gebruiken en meteen beginnen.</p>
+    <!-- ================= OVER ================= -->
+    <section class="container about">
+      <div class="about-aside">
+        <span class="about-mark" aria-hidden="true">&#9635;</span>
+        <span class="eyebrow" data-reveal>De server</span>
+        <p class="about-note" data-reveal data-delay="150">
+          <span class="brand-mark" aria-hidden="true">&#9635;</span>
+          Draait op een eigen machine, en is dag en nacht aan te zetten via de site.
+        </p>
+      </div>
+      <div>
+        <h2 class="about-statement" data-reveal="words">Eén wereld, één vaste groep. <span class="muted">Geen randoms, geen grief — gewoon samen bouwen aan iets dat blijft staan.</span></h2>
+        <div class="about-foot" data-reveal data-delay="200">
+          <p>Benieuwd wat er speelt?</p>
+          <a class="btn btn-ghost btn-sm btn-arrow" href="nieuws.html">Lees het nieuws<span class="btn-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
         </div>
       </div>
     </section>
 
-    <!-- ================= VERBINDEN ================= -->
-    <section>
-      <span class="eyebrow">Verbinden</span>
-      <h2>Server-gegevens</h2>
-      <div class="connect-card">
-        <div class="connect-row">
-          <div>
-            <div class="connect-label">Server-adres</div>
-            <div class="connect-value" id="server-address">play.minecraftgooners.nl</div>
-          </div>
-          <button class="copy-btn" id="copy-address" type="button" data-copy="play.minecraftgooners.nl">Kopieer</button>
-        </div>
-        <div class="connect-row">
-          <div>
-            <div class="connect-label">Versie</div>
-            <div class="connect-value">Java Edition &middot; 26.2</div>
-          </div>
-        </div>
+    <!-- ================= BAND ================= -->
+    <section class="container">
+      <p class="visually-hidden">Mine, craft, samen.</p>
+      <ul class="band" aria-hidden="true" data-stagger="120">
+        <li data-reveal><div class="band-pill is-ghost">Mine</div></li>
+        <li data-reveal><div class="band-pill is-light">Craft</div></li>
+        <li data-reveal><div class="band-pill is-ink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div></li>
+        <li data-reveal><div class="band-pill is-accent">Samen</div></li>
+      </ul>
+    </section>
+
+    <!-- ================= ALLES OP ÉÉN PLEK ================= -->
+    <section class="container rows-section">
+      <div class="rows-head">
+        <span class="eyebrow" data-reveal>Alles op één plek</span>
+        <h2 data-reveal="lines" data-delay="120">Wat je hier<br>kunt doen</h2>
       </div>
-      <p class="hero-note" style="margin-top:14px;">
-        Whitelist verplicht — je moet eerst goedgekeurd worden voor je kunt joinen.
-      </p>
+      <ul class="link-rows" data-stagger="80">
+        <li data-reveal>
+          <a class="link-row" href="aanmelden.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">01</span>
+              <span class="link-row-title">Aanmelden</span>
+              <span class="link-row-desc">Vraag toegang tot de whitelist. Duurt een minuut.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="beheer.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">02</span>
+              <span class="link-row-title">Serverbesturing</span>
+              <span class="link-row-desc">Zet de server aan wanneer jij wilt spelen.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="nieuws.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">03</span>
+              <span class="link-row-title">Nieuws</span>
+              <span class="link-row-desc">Updates, regelwijzigingen en gepland onderhoud.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="feedback.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">04</span>
+              <span class="link-row-title">Feedback</span>
+              <span class="link-row-desc">Klachten, ideeën en bugs — anoniem als je wilt.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+      </ul>
     </section>
 
     <!-- ================= SPELREGELS ================= -->
-    <section class="scroller" data-scroller>
+    <section class="scroller container" data-scroller id="spelregels">
       <div class="scroller-head">
         <div>
           <span class="eyebrow">Voordat je begint</span>
@@ -198,26 +335,86 @@
     </section>
 
     <!-- ================= APP ================= -->
-    <section>
-      <div class="card">
-        <span class="eyebrow">Nieuw</span>
-        <h2 style="margin-bottom:var(--space-3);">De server beheren vanaf je bureaublad</h2>
-        <p style="color:var(--text-muted); max-width:58ch;">
-          Een Windows-app die in je taakbalk blijft staan. Het icoontje wordt
-          groen als de server draait, je start hem met een rechtsklik, en je
-          krijgt een melding zodra er iemand joint.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="app.html">Bekijk de app</a>
-          <a class="btn btn-ghost" href="nieuws.html">Wat is er nog meer nieuw?</a>
+    <section class="container" style="margin-top:var(--space-8)">
+      <a class="feature-card" href="app.html" data-reveal="scale">
+        <div class="feature-meta">
+          <span>Nieuw — App</span>
+          <span class="feature-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
         </div>
+        <div class="feature-mark" aria-hidden="true">&#9635;</div>
+        <div class="feature-body">
+          <h3>De server in je taakbalk</h3>
+          <p>Zie in één oogopslag of de server draait, start hem met een
+            rechtsklik, en krijg een melding zodra er iemand joint.</p>
+          <div class="feature-tags"><span>Windows</span><span>Android</span><span>Meldingen</span></div>
+        </div>
+      </a>
+    </section>
+
+    <!-- ================= IN CIJFERS ================= -->
+    <section class="container" style="margin-top:var(--space-8)">
+      <div class="stats-panel" data-reveal="scale">
+        <span class="eyebrow">In cijfers</span>
+        <h2 class="stats-title" data-reveal="lines" data-delay="120">Klein, maar<br>goed geregeld.</h2>
+        <ul class="stats-grid" data-stagger="90">
+          <li data-reveal>
+            <span class="stat-num" data-count="26.2" data-decimals="1">26.2</span>
+            <span class="stat-label">Minecraft-versie, Java Edition</span>
+          </li>
+          <li data-reveal>
+            <span class="stat-num" data-count="7">7</span>
+            <span class="stat-label">nachtelijke back-ups bewaard</span>
+          </li>
+          <li data-reveal>
+            <span class="stat-num" data-count="10">10</span><span class="stat-suffix">min</span>
+            <span class="stat-label">tot de server zelf uitgaat als niemand speelt</span>
+          </li>
+          <li data-reveal>
+            <span class="stat-num" data-count="24">24</span><span class="stat-suffix">/7</span>
+            <span class="stat-label">zelf aan te zetten via de site</span>
+          </li>
+        </ul>
       </div>
     </section>
 
   </main>
 
-  <footer>
-    <div class="container">&copy; 2026 MinecraftGooners — gemaakt voor het clubje, door het clubje.</div>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-cta">
+        <h2 class="footer-title" data-reveal="lines" data-line-stagger="100">Zin om mee te bouwen?<br>Meld je aan.</h2>
+        <a class="btn btn-primary btn-arrow" data-arrow="up-right" href="aanmelden.html">Aanmelden<span class="btn-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-brand">
+          <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+          <p>Een privé whitelist-server voor een vaste groep vrienden. Geen randoms, geen chaos.</p>
+        </div>
+        <nav class="footer-col" aria-label="Server">
+          <h3>Server</h3>
+          <a href="index.html">Home</a>
+          <a href="aanmelden.html">Aanmelden</a>
+          <a href="nieuws.html">Nieuws</a>
+          <a href="feedback.html">Feedback</a>
+        </nav>
+        <nav class="footer-col" aria-label="Voor leden">
+          <h3>Voor leden</h3>
+          <a href="beheer.html">Serverbesturing</a>
+          <a href="account.html">Mijn account</a>
+          <a href="app.html">App</a>
+        </nav>
+        <div class="footer-col">
+          <h3>Verbinden</h3>
+          <span class="mono">play.minecraftgooners.nl</span>
+          <span>Java Edition 26.2</span>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <span>Gemaakt voor het clubje, door het clubje.</span>
+      </div>
+    </div>
+    <div class="footer-watermark" aria-hidden="true">MINECRAFTGOONERS</div>
   </footer>
 
 </body>
