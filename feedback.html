@@ -8,6 +8,7 @@
        bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
   <script>
     (function () {
+      document.documentElement.classList.add("js");
       try {
         var s = localStorage.getItem("mcg-scheme");
         if (s !== "light" && s !== "dark") {
@@ -49,7 +50,7 @@
         <a href="aanmelden.html">Aanmelden</a>
         <a href="nieuws.html">Nieuws</a>
         <a href="feedback.html" aria-current="page">Feedback</a>
-        <a href="app.html">App Download</a>
+        <a href="app.html">App</a>
         <a href="beheer.html">Beheer</a>
       </div>
     </div>
@@ -195,8 +196,42 @@
 
   </main>
 
-  <footer>
-    <div class="container">&copy; 2026 MinecraftGooners</div>
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-cta">
+        <h2 class="footer-title" data-reveal="lines" data-line-stagger="100">Zin om mee te bouwen?<br>Meld je aan.</h2>
+        <a class="btn btn-primary btn-arrow" data-arrow="up-right" href="aanmelden.html">Aanmelden<span class="btn-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span></a>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-brand">
+          <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+          <p>Een privé whitelist-server voor een vaste groep vrienden. Geen randoms, geen chaos.</p>
+        </div>
+        <nav class="footer-col" aria-label="Server">
+          <h3>Server</h3>
+          <a href="index.html">Home</a>
+          <a href="aanmelden.html">Aanmelden</a>
+          <a href="nieuws.html">Nieuws</a>
+          <a href="feedback.html">Feedback</a>
+        </nav>
+        <nav class="footer-col" aria-label="Voor leden">
+          <h3>Voor leden</h3>
+          <a href="beheer.html">Serverbesturing</a>
+          <a href="account.html">Mijn account</a>
+          <a href="app.html">App</a>
+        </nav>
+        <div class="footer-col">
+          <h3>Verbinden</h3>
+          <span class="mono">play.minecraftgooners.nl</span>
+          <span>Java Edition 26.2</span>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <span>Gemaakt voor het clubje, door het clubje.</span>
+      </div>
+    </div>
+    <div class="footer-watermark" aria-hidden="true">MINECRAFTGOONERS</div>
   </footer>
 
 </body>
