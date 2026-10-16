@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#14171b">
+
+  <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema.
+       De klasse "js" laat de stylesheet weten dat animaties mogen wachten. -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("js");
+      try {
+        var s = localStorage.getItem("mcg-scheme");
+        if (s !== "light" && s !== "dark") {
+          s = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-scheme", s);
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("mcg-theme") === "kerst" ? "kerst" : "standaard"
+        );
+      } catch (e) {}
+    })();
+  </script>
+
+  <title>Kaart — MinecraftGooners</title>
+  <meta name="description" content="De live kaart van de server. Alleen voor leden.">
+
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/pwa.js"></script>
+  <script type="module" src="js/theme.js"></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#hoofdinhoud">Naar de inhoud</a>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+
+      <div class="nav-links">
+        <a href="index.html" >Home</a>
+        <a href="aanmelden.html">Aanmelden</a>
+        <a href="nieuws.html">Nieuws</a>
+        <a href="kaart.html" aria-current="page">Kaart</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="app.html">App</a>
+        <a href="beheer.html">Beheer</a>
+      </div>
+
+      <button class="nav-toggle" type="button" aria-label="Menu openen" aria-controls="nav-sheet">
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main id="hoofdinhoud" class="container">
+    <section class="rows-section" style="padding-top:var(--space-6);">
+      <span class="eyebrow">Live kaart</span>
+      <h1 style="margin-bottom:var(--space-3);">De wereld van de server</h1>
+      <p class="lede" style="margin-bottom:var(--space-6);">Zie waar iedereen bouwt, en beweeg rond in 3D. Alleen zichtbaar als je ingelogd bent.</p>
+
+      <!-- Wat je ziet terwijl het script je sessie nakijkt -->
+      <p class="hint" id="kaart-status">Even kijken of je ingelogd bent…</p>
+
+      <!-- Verborgen tot het script weet dat je niet ingelogd bent -->
+      <div class="card" id="kaart-gate" hidden>
+        <h2 style="font-size:1.4rem;">Log in om de kaart te zien</h2>
+        <p style="color:var(--text-muted);">
+          De kaart is alleen zichtbaar voor mensen met een account op deze site.
+          Nog geen account? Je maakt er een aan op dezelfde pagina.
+        </p>
+        <a class="btn btn-primary" href="account.html" style="margin-top:var(--space-4);">Inloggen of account maken</a>
+      </div>
+
+      <div id="kaart-wrap" hidden style="position:relative;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);box-shadow:var(--shadow-lg);background:var(--bg-elevated);">
+        <iframe id="kaart-frame" title="Live kaart van de Minecraft-server"
+                allow="fullscreen" allowfullscreen
+                style="display:block;width:100%;height:min(78vh,760px);border:0;"></iframe>
+      </div>
+      <p class="hint">Scrollen en klikken werken in de kaart. Het kan even duren voordat de eerste tegels er zijn.</p>
+    </section>
+  </main>
+
+    <footer class="site-footer is-compact">
+    <div class="container">
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <a href="index.html">Terug naar de site</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { supabaseClient } from "./js/supabase-client.js";
+
+    const KAART_URL = "https://kaart.minecraftgooners.nl/";
+    const COOKIE = "mcg_kaart";
+    const statusTekst = document.getElementById("kaart-status");
+    const gate = document.getElementById("kaart-gate");
+    const wrap = document.getElementById("kaart-wrap");
+    const frame = document.getElementById("kaart-frame");
+
+    // Het token gaat als cookie naar het kaart-subdomein. Met Domain=.minecraftgooners.nl
+    // ziet de kaart hem; Secure en SameSite houden hem binnen je eigen domein.
+    function zetCookie(token, verloopt) {
+      const nu = Math.floor(Date.now() / 1000);
+      const seconden = Math.max(60, (verloopt || nu + 3600) - nu);
+      document.cookie = `${COOKIE}=${token}; Domain=.minecraftgooners.nl; Path=/; Secure; SameSite=Lax; Max-Age=${seconden}`;
+    }
+
+    function wisCookie() {
+      document.cookie = `${COOKIE}=; Domain=.minecraftgooners.nl; Path=/; Secure; SameSite=Lax; Max-Age=0`;
+    }
+
+    /**
+     * Toont of verbergt de kaart. Iedereen met een account mag kijken,
+     * welke rol ook — de server-laptop controleert dat bij elk verzoek nog
+     * een keer, dus dit is alleen wat je op het scherm ziet.
+     */
+    function werkBij(session) {
+      statusTekst.hidden = true;
+
+      if (!session?.access_token) {
+        wisCookie();
+        wrap.hidden = true;
+        gate.hidden = false;
+        // about:blank laadt de kaart echt uit; alleen src weghalen doet dat
+        // niet in elke browser.
+        if (frame.getAttribute("src")) frame.src = "about:blank";
+        return;
+      }
+
+      // Eerst de cookie, daarna pas de kaart: anders vraagt de kaart zonder
+      // token en krijg je meteen een weigering.
+      zetCookie(session.access_token, session.expires_at);
+      gate.hidden = true;
+      wrap.hidden = false;
+      if (frame.getAttribute("src") !== KAART_URL) frame.src = KAART_URL;
+    }
+
+    // Supabase meldt hier inloggen, uitloggen én het verversen van het
+    // token. Dat laatste is belangrijk: het nieuwe token moet in de cookie,
+    // anders weigert de kaart je na een uur.
+    //
+    // Binnen deze luisteraar geen andere Supabase-aanroepen doen: dat kan
+    // in supabase-js vastlopen. Daarom de sessie uit de melding zelf, en
+    // via setTimeout buiten de luisteraar om.
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setTimeout(() => werkBij(session), 0);
+    });
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    werkBij(session);
+  </script>
+</body>
+</html>
