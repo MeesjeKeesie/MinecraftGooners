@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#14171b">
+  <meta name="robots" content="noindex">
+
+  <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema.
+       De klasse "js" laat de stylesheet weten dat animaties mogen wachten. -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("js");
+      try {
+        var s = localStorage.getItem("mcg-scheme");
+        if (s !== "light" && s !== "dark") {
+          s = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-scheme", s);
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("mcg-theme") === "kerst" ? "kerst" : "standaard"
+        );
+      } catch (e) {}
+    })();
+  </script>
+
+  <title>Pagina niet gevonden — MinecraftGooners</title>
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="alternate icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+
+  <style>
+    /* Alleen voor deze pagina */
+    @media (min-width: 1024px) {
+      .hero-stage.is-404 { min-height: min(84svh, 48rem); }
+    }
+    .hero-watermark.is-404 {
+      font-size: clamp(9rem, 34vw, 30rem);
+      bottom: 0.5rem;
+      letter-spacing: -0.06em;
+    }
+    /* Op een smal scherm loopt het watermerk achter de knoppen door. */
+    @media (max-width: 640px) {
+      .hero-watermark.is-404 { display: none; }
+    }
+    .gezocht { margin: 0; font-size: 0.875rem; color: var(--text-faint); overflow-wrap: anywhere; }
+    .gezocht code { font-family: var(--font-mono); color: var(--text-muted); }
+    /* De graaf-tip heeft alleen zin met een muis, en niet als animaties uit staan. */
+    @media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+      .graaf-tip { display: none; }
+    }
+  </style>
+
+  <script type="module" src="/js/theme.js"></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#hoofdinhoud">Naar de inhoud</a>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+
+      <div class="nav-links">
+        <a href="/index.html">Home</a>
+        <a href="/aanmelden.html">Aanmelden</a>
+        <a href="/nieuws.html">Nieuws</a>
+        <a href="/feedback.html">Feedback</a>
+        <a href="/app.html">App</a>
+        <a href="/beheer.html">Beheer</a>
+      </div>
+
+      <button class="nav-toggle" type="button" aria-label="Menu openen" aria-controls="nav-sheet">
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main id="hoofdinhoud" class="is-flush">
+
+    <section class="hero-stage is-404">
+      <div class="hero-reveal" data-ore-reveal></div>
+      <div class="hero-vignette" aria-hidden="true"></div>
+      <div class="hero-watermark is-404" aria-hidden="true" data-reveal="fade" data-delay="250">404</div>
+
+      <div class="container hero-grid">
+        <div class="hero-main">
+          <span class="eyebrow" data-reveal>Fout 404</span>
+          <h1 class="hero-title" data-reveal="lines" data-delay="80">Deze chunk is nog<br>niet gegenereerd.</h1>
+          <p class="lede" data-reveal data-delay="380">
+            Op dit adres staat niets. Misschien is de pagina verhuisd, of zit er
+            een typfout in de link.
+          </p>
+          <p class="gezocht" data-reveal data-delay="460">Je zocht: <code id="gezocht-pad">/</code></p>
+          <div class="hero-actions" data-reveal data-delay="540">
+            <a class="btn btn-primary btn-arrow" href="/">Terug naar home<span class="btn-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+            <a class="btn btn-ghost" href="/nieuws.html">Naar het nieuws</a>
+          </div>
+          <p class="hint graaf-tip" data-reveal data-delay="640">Tip: beweeg je muis over dit vlak. Er zit erts onder.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container rows-section">
+      <div class="rows-head">
+        <span class="eyebrow" data-reveal>Of ga verder met</span>
+        <h2 data-reveal="lines" data-delay="100">Waar wil<br>je heen?</h2>
+      </div>
+      <ul class="link-rows" data-stagger="80">
+        <li data-reveal>
+          <a class="link-row" href="/aanmelden.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">01</span>
+              <span class="link-row-title">Aanmelden</span>
+              <span class="link-row-desc">Vraag toegang tot de whitelist.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="/beheer.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">02</span>
+              <span class="link-row-title">Serverbesturing</span>
+              <span class="link-row-desc">Zet de server aan wanneer jij wilt spelen.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="/nieuws.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">03</span>
+              <span class="link-row-title">Nieuws</span>
+              <span class="link-row-desc">Updates, regelwijzigingen en gepland onderhoud.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+        <li data-reveal>
+          <a class="link-row" href="/feedback.html">
+            <span class="link-row-inner">
+              <span class="link-row-index">04</span>
+              <span class="link-row-title">Feedback</span>
+              <span class="link-row-desc">Werkt er een link niet? Laat het hier weten.</span>
+            </span>
+            <span class="link-row-badge" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg></span>
+          </a>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-cols">
+        <div class="footer-brand">
+          <a class="brand" href="/index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+          <p>Een privé whitelist-server voor een vaste groep vrienden. Geen randoms, geen chaos.</p>
+        </div>
+        <nav class="footer-col" aria-label="Server">
+          <h3>Server</h3>
+          <a href="/index.html">Home</a>
+          <a href="/aanmelden.html">Aanmelden</a>
+          <a href="/nieuws.html">Nieuws</a>
+          <a href="/feedback.html">Feedback</a>
+        </nav>
+        <nav class="footer-col" aria-label="Voor leden">
+          <h3>Voor leden</h3>
+          <a href="/beheer.html">Serverbesturing</a>
+          <a href="/account.html">Mijn account</a>
+          <a href="/app.html">App</a>
+        </nav>
+        <div class="footer-col">
+          <h3>Verbinden</h3>
+          <span class="mono">play.minecraftgooners.nl</span>
+          <span>Java Edition 26.2</span>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <span>Gemaakt voor het clubje, door het clubje.</span>
+      </div>
+    </div>
+    <div class="footer-watermark" aria-hidden="true">MINECRAFTGOONERS</div>
+  </footer>
+
+  <script>
+    // Laat zien welk adres er gezocht werd. textContent, zodat wat er in
+    // het adres staat nooit als code wordt uitgevoerd.
+    (function () {
+      var pad = location.pathname;
+      try { pad = decodeURIComponent(pad); } catch (e) {}
+      document.getElementById("gezocht-pad").textContent = pad;
+    })();
+  </script>
+</body>
+</html>
