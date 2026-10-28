@@ -1,0 +1,7 @@
+# Alles mag gelezen worden. Pagina's die niet in zoekresultaten horen
+# (account, beheer, admin, 404) hebben zelf een noindex-regel. Ze hier
+# blokkeren zou averechts werken: dan ziet Google die noindex nooit.
+User-agent: *
+Allow: /
+
+Sitemap: https://minecraftgooners.nl/sitemap.xml
