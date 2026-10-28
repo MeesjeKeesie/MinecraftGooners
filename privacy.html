@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Thema meteen zetten, vóór de pagina tekent. Moet inline: een extern
+       bestand laadt te laat en dan zie je een flits van het verkeerde thema. -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("js");
+      try {
+        var s = localStorage.getItem("mcg-scheme");
+        if (s !== "light" && s !== "dark") {
+          s = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.setAttribute("data-scheme", s);
+        document.documentElement.setAttribute(
+          "data-theme",
+          localStorage.getItem("mcg-theme") === "kerst" ? "kerst" : "standaard"
+        );
+      } catch (e) {}
+    })();
+  </script>
+  <title>Privacy — MinecraftGooners</title>
+  <meta name="description" content="Wat MinecraftGooners opslaat, waarom, en wat je ermee kunt. Geen tracking, geen advertenties.">
+
+  <meta name="theme-color" content="#14171b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gooners">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="alternate icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script defer src="js/pwa.js"></script>
+  <script type="module" src="js/theme.js"></script>
+</head>
+<body>
+
+  <a class="skip-link" href="#hoofdinhoud">Naar de inhoud</a>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="aanmelden.html">Aanmelden</a>
+        <a href="nieuws.html">Nieuws</a>
+        <a href="feedback.html">Feedback</a>
+        <a href="app.html">App</a>
+        <a href="beheer.html">Beheer</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" id="hoofdinhoud">
+    <div style="max-width:52rem;">
+
+      <div class="page-header">
+        <span class="eyebrow">Privacy</span>
+        <h1>Wat we bewaren, en waarom</h1>
+        <p class="lede">
+          Kort gezegd: geen tracking, geen advertenties, en we verkopen niets
+          door. Hieronder staat precies wat er gebeurt.
+        </p>
+      </div>
+
+      <section>
+        <h2>In je browser</h2>
+        <p style="color:var(--text-muted);">
+          Alles wat hieronder staat is nodig om de site te laten werken. Daarom
+          vragen we er geen toestemming voor — je kunt het wel altijd wissen via
+          de instellingen van je browser.
+        </p>
+        <div class="request-list" style="margin-top:var(--space-5);">
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Je login</span>
+            <div class="request-sub"><span class="mono">sb-…-auth-token</span> &middot; localStorage</div>
+            <p class="request-reason">Houdt je ingelogd, zodat je niet op elke pagina opnieuw hoeft in te loggen.</p>
+            <div class="request-meta">Tot je uitlogt</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Licht of donker</span>
+            <div class="request-sub"><span class="mono">mcg-scheme</span> &middot; localStorage</div>
+            <p class="request-reason">Onthoudt welke weergave je koos.</p>
+            <div class="request-meta">Tot je je browsergegevens wist</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Sitethema</span>
+            <div class="request-sub"><span class="mono">mcg-theme</span> &middot; localStorage</div>
+            <p class="request-reason">Onthoudt of bijvoorbeeld het kerstthema aan staat, zodat de pagina meteen goed laadt.</p>
+            <div class="request-meta">Tot je je browsergegevens wist</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Intro</span>
+            <div class="request-sub"><span class="mono">mcg-intro</span> &middot; sessionStorage</div>
+            <p class="request-reason">Zorgt dat je het laadscherm maar één keer per bezoek ziet.</p>
+            <div class="request-meta">Tot je het tabblad sluit</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Deze melding</span>
+            <div class="request-sub"><span class="mono">mcg-melding-gezien</span> &middot; localStorage</div>
+            <p class="request-reason">Onthoudt dat je de privacymelding hebt gezien.</p>
+            <div class="request-meta">Tot je je browsergegevens wist</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Toegang tot de kaart</span>
+            <div class="request-sub"><span class="mono">mcg_kaart</span> &middot; cookie</div>
+            <p class="request-reason">Laat de live kaart weten dat je ingelogd bent.</p>
+            <div class="request-meta">Ongeveer een uur, en weg zodra je uitlogt</div>
+          </div>
+        </div>
+        <div class="request-card">
+          <div class="request-info">
+            <span class="request-name">Offline-kopie</span>
+            <div class="request-sub"><span class="mono">Service worker</span> &middot; cache</div>
+            <p class="request-reason">Bewaart pagina's, zodat de site ook werkt als je even geen verbinding hebt.</p>
+            <div class="request-meta">Tot je je browsergegevens wist</div>
+          </div>
+        </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Wat je zelf invult</h2>
+        <div class="request-list">
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">Aanmelden</span>
+            <p class="request-reason">Je Minecraft-naam, e-mailadres, Discord-naam, leeftijd en je
+              motivatie. We gebruiken dit om je aanmelding te beoordelen, je per e-mail
+              te laten weten wat de uitkomst is, en je op de whitelist te zetten.</p>
+          </div></div>
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">Feedback</span>
+            <p class="request-reason">Je bericht, en als je niet ingelogd bent eventueel je
+              e-mailadres. Dat laatste alleen om te kunnen reageren. Je e-mailadres wordt
+              nooit gepubliceerd, en je naam alleen als je niet anoniem instuurt.</p>
+          </div></div>
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">Account</span>
+            <p class="request-reason">Je e-mailadres, je weergavenaam en je rol.</p>
+          </div></div>
+        </div>
+        <p style="color:var(--text-muted);margin-top:var(--space-5);">
+          Dit staat bij Supabase, de dienst waar de database van deze site draait.
+          E-mails, zoals de uitslag van je aanmelding, worden verstuurd via Resend.
+        </p>
+      </section>
+
+      <section>
+        <h2>Diensten van anderen</h2>
+        <p style="color:var(--text-muted);">
+          Je browser haalt een paar dingen op bij andere partijen. Die zien
+          daarbij je IP-adres, zoals bij vrijwel elke website.
+        </p>
+        <div class="request-list" style="margin-top:var(--space-5);">
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">Google Fonts</span>
+            <p class="request-reason">De lettertypen van de site.</p>
+          </div></div>
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">jsDelivr</span>
+            <p class="request-reason">Een paar scripts, onder andere voor inloggen en de animaties.</p>
+          </div></div>
+          <div class="request-card"><div class="request-info">
+            <span class="request-name">Supabase</span>
+            <p class="request-reason">Inloggen, en alle gegevens van de site.</p>
+          </div></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hoe lang</h2>
+        <p style="color:var(--text-muted);">
+          Je aanmelding en account bewaren we zolang je bij de server hoort.
+          Vraag je om verwijdering, dan halen we je gegevens weg.
+        </p>
+      </section>
+
+      <section>
+        <h2>Je rechten</h2>
+        <p style="color:var(--text-muted);">
+          Je mag altijd vragen welke gegevens we van je hebben, ze laten
+          aanpassen, of alles laten verwijderen. Stuur daarvoor een bericht via
+          de <a href="feedback.html">feedbackpagina</a>, met de categorie Vraag.
+        </p>
+        <p class="hint">Laatst bijgewerkt: 28 oktober 2026.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-cols">
+        <div class="footer-brand">
+          <a class="brand" href="index.html"><span class="brand-mark">&#9635;</span> MinecraftGooners</a>
+          <p>Een privé whitelist-server voor een vaste groep vrienden. Geen randoms, geen chaos.</p>
+        </div>
+        <nav class="footer-col" aria-label="Server">
+          <h3>Server</h3>
+          <a href="index.html">Home</a>
+          <a href="aanmelden.html">Aanmelden</a>
+          <a href="nieuws.html">Nieuws</a>
+          <a href="feedback.html">Feedback</a>
+        </nav>
+        <nav class="footer-col" aria-label="Voor leden">
+          <h3>Voor leden</h3>
+          <a href="beheer.html">Serverbesturing</a>
+          <a href="account.html">Mijn account</a>
+          <a href="app.html">App</a>
+        </nav>
+        <div class="footer-col">
+          <h3>Verbinden</h3>
+          <span class="mono">play.minecraftgooners.nl</span>
+          <span>Java Edition 26.2</span>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <span>&copy; 2026 MinecraftGooners</span>
+        <span><a href="privacy.html">Privacy</a> &middot; Gemaakt voor het clubje, door het clubje.</span>
+      </div>
+    </div>
+    <div class="footer-watermark" aria-hidden="true">MINECRAFTGOONERS</div>
+  </footer>
+
+</body>
+</html>
