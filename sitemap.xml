@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Pagina's die zoekmachines mogen vinden. Niet hierin, met opzet:
+  account, beheer, admin (staan op noindex), kaart (alleen voor leden),
+  offline en 404.
+
+  Pas <lastmod> aan als je een pagina inhoudelijk wijzigt — vooral bij
+  nieuws.html na een nieuw bericht. Google kijkt daar wel naar.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://minecraftgooners.nl/</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+  <url>
+    <loc>https://minecraftgooners.nl/aanmelden.html</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+  <url>
+    <loc>https://minecraftgooners.nl/nieuws.html</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+  <url>
+    <loc>https://minecraftgooners.nl/feedback.html</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+  <url>
+    <loc>https://minecraftgooners.nl/app.html</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+  <url>
+    <loc>https://minecraftgooners.nl/privacy.html</loc>
+    <lastmod>2026-10-28</lastmod>
+  </url>
+</urlset>
