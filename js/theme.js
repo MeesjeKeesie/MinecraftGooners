@@ -203,6 +203,9 @@ refreshSiteTheme();
  * Laadt een pagina motion.js daarnaast via een eigen scripttag, dan voert
  * de browser hem maar één keer uit — dezelfde URL is dezelfde module.
  */
+// De eenmalige privacy-melding. Mislukt het laden, dan is er niets aan de hand.
+import("./melding.js").catch(() => {});
+
 import("./motion.js").catch(() => {
   // Lukt het niet, dan blijft de site werken, alleen zonder beweging.
   // Maar dan moeten de links op smalle schermen wel zichtbaar blijven,
